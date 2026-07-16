@@ -558,6 +558,25 @@ void SM64AP_RecvItem(int64_t idx, bool notify) {
     }
 }
 
+static void SM64AP_SendStarsanityCheck(int courseIdx) {
+    if (courseIdx < 0 || courseIdx >= SM64AP_NUM_STARSANITY_CHECKS) {
+        return;
+    }
+    if (sm64_sent_starsanity_checks[courseIdx]) {
+        return;
+    }
+
+    int locId = SM64AP_LOCATIONID_STARSANITY_START + courseIdx;
+    if (SM64AP_CheckedLoc(locId)) {
+        sm64_sent_starsanity_checks[courseIdx] = true;
+        return;
+    }
+
+    sm64_sent_starsanity_checks[courseIdx] = true;
+    SM64AP_SendItem(locId);
+}
+
+
 void SM64AP_CheckLocation(int64_t loc_id) {
     if (loc_id < SM64AP_ID_OFFSET || loc_id >= SM64AP_ID_OFFSET + SM64AP_NUM_LOCS) {
         return;
@@ -2312,24 +2331,6 @@ void SM64AP_SendBlocksanityCheck(s16 level, s16 area, s32 behParams, s16 x, s16 
     }
 
     sm64_sent_blocksanity_checks[offset] = true;
-    SM64AP_SendItem(locId);
-}
-
-static void SM64AP_SendStarsanityCheck(int courseIdx) {
-    if (courseIdx < 0 || courseIdx >= SM64AP_NUM_STARSANITY_CHECKS) {
-        return;
-    }
-    if (sm64_sent_starsanity_checks[courseIdx]) {
-        return;
-    }
-
-    int locId = SM64AP_LOCATIONID_STARSANITY_START + courseIdx;
-    if (SM64AP_CheckedLoc(locId)) {
-        sm64_sent_starsanity_checks[courseIdx] = true;
-        return;
-    }
-
-    sm64_sent_starsanity_checks[courseIdx] = true;
     SM64AP_SendItem(locId);
 }
 
