@@ -92,6 +92,8 @@ std::bitset<SM64AP_NUM_OBJECT_ITEMS> sm64_have_object_items;
 std::bitset<SM64AP_NUM_COIN_CHECKS> sm64_sent_coin_checks;
 std::bitset<SM64AP_NUM_1UP_CHECKS> sm64_sent_1up_checks;
 std::bitset<SM64AP_NUM_BLOCKSANITY_CHECKS> sm64_sent_blocksanity_checks;
+bool sm64_starsanity_enabled = false;
+std::bitset<SM64AP_NUM_STARSANITY_CHECKS> sm64_sent_starsanity_checks;
 std::set<int> sm64_sent_box_checks;
 int* sm64_clockaction = nullptr;
 int sm64_cost_firstbowserdoor = 8;
@@ -576,6 +578,21 @@ void SM64AP_CheckLocation(int64_t loc_id) {
     int blocksanityOffset = loc_id - SM64AP_LOCATIONID_BLOCKSANITY_START;
     if (blocksanityOffset >= 0 && blocksanityOffset < SM64AP_NUM_BLOCKSANITY_CHECKS) {
         sm64_sent_blocksanity_checks[blocksanityOffset] = true;
+    }
+
+    int starsanityOffset = loc_id - SM64AP_LOCATIONID_STARSANITY_START;
+    if (starsanityOffset >= 0 && starsanityOffset < SM64AP_NUM_STARSANITY_CHECKS) {
+        sm64_sent_starsanity_checks[starsanityOffset] = true;
+    }
+
+    if (sm64_starsanity_enabled) {
+        int mainCourseStarOffset = loc_id - SM64AP_ID_OFFSET;
+        if (mainCourseStarOffset >= 0 && mainCourseStarOffset < 15 * 7) {
+            int courseIdx = mainCourseStarOffset / 7;
+            if (SM64AP_CourseStarFlags(courseIdx) == 0x7F) {
+                SM64AP_SendStarsanityCheck(courseIdx);
+            }
+        }
     }
 }
 
@@ -1385,6 +1402,10 @@ void SM64AP_SetBuddyChecks(int enabled) {
     sm64_buddy_checks_enabled = enabled != 0;
 }
 
+void SM64AP_SetStarsanity(int enabled) {
+    sm64_starsanity_enabled = enabled != 0;
+}
+
 void SM64AP_SetBowserStageOneUpBehavior(int behavior) {
     sm64_bowser_stage_1up_item_behavior = behavior != 0;
 }
@@ -1824,6 +1845,7 @@ void SM64AP_ResetItems() {
     sm64_sent_coin_checks.reset();
     sm64_sent_1up_checks.reset();
     sm64_sent_blocksanity_checks.reset();
+    sm64_sent_starsanity_checks.reset();
     sm64_sent_box_checks.clear();
     sm64_have_first_floor_key = false;
     sm64_have_progressive_basement_keys = 0;
@@ -1841,6 +1863,7 @@ void SM64AP_ResetItems() {
     sm64_have_vcutm_entrance = false;
     sm64_1up_checks_enabled = false;
     sm64_buddy_checks_enabled = true;
+    sm64_starsanity_enabled = false;
     sm64_bowser_stage_1up_item_behavior = false;
     sm64_have_bowser_stage_1ups = false;
     sm64_have_bitdw_1ups = false;
@@ -1908,6 +1931,7 @@ void SM64AP_GenericInit() {
     AP_RegisterSlotDataRawCallback("MusicMap", static_cast<void (*)(std::string)>(&SM64AP_SetMusicMap));
     AP_RegisterSlotDataRawCallback("MarioColors", &SM64AP_SetMarioColors);
     AP_RegisterSlotDataRawCallback("CoinStarRequirements", &SM64AP_SetCoinStarRequirements);
+    AP_RegisterSlotDataIntCallback("Starsanity", &SM64AP_SetStarsanity);
 
     course_dest_supported = {
         LEVEL_BOB, LEVEL_WF, LEVEL_JRB, LEVEL_CCM, LEVEL_BBH, LEVEL_HMC, LEVEL_LLL, LEVEL_SSL, LEVEL_DDD, LEVEL_SL,
@@ -2135,6 +2159,10 @@ bool SM64AP_OneUpChecksEnabled() {
     return sm64_1up_checks_enabled;
 }
 
+bool SM64AP_StarsanityEnabled() {
+    return sm64_starsanity_enabled;
+}
+
 bool SM64AP_BuddyChecksEnabled() {
     return sm64_buddy_checks_enabled;
 }
@@ -2284,6 +2312,24 @@ void SM64AP_SendBlocksanityCheck(s16 level, s16 area, s32 behParams, s16 x, s16 
     }
 
     sm64_sent_blocksanity_checks[offset] = true;
+    SM64AP_SendItem(locId);
+}
+
+static void SM64AP_SendStarsanityCheck(int courseIdx) {
+    if (courseIdx < 0 || courseIdx >= SM64AP_NUM_STARSANITY_CHECKS) {
+        return;
+    }
+    if (sm64_sent_starsanity_checks[courseIdx]) {
+        return;
+    }
+
+    int locId = SM64AP_LOCATIONID_STARSANITY_START + courseIdx;
+    if (SM64AP_CheckedLoc(locId)) {
+        sm64_sent_starsanity_checks[courseIdx] = true;
+        return;
+    }
+
+    sm64_sent_starsanity_checks[courseIdx] = true;
     SM64AP_SendItem(locId);
 }
 
