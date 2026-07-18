@@ -526,6 +526,9 @@ s32 act_reading_sign(struct MarioState *m) {
             // create the text box
             if (m->actionTimer++ == 10) {
                 create_dialog_inverted_box(m->usedObj->oBehParams2ndByte);
+                SM64AP_SendSignsanityCheck(gCurrLevelNum, gCurrAreaIndex, m->usedObj->oBehParams2ndByte,
+                                           (s16) m->usedObj->oHomeX, (s16) m->usedObj->oHomeY,
+                                           (s16) m->usedObj->oHomeZ);
                 m->actionState = 2;
             }
             break;

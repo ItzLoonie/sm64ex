@@ -139,6 +139,11 @@ static void toad_message_talking(void) {
                 gCurrentObject->oToadMessageDialogId = TOAD_STAR_3_DIALOG_AFTER;
                 bhv_spawn_star_no_level_exit(2);
                 break;
+            default:
+                SM64AP_SendToadsanityCheck(gCurrLevelNum, gCurrAreaIndex,
+                                           (s16) gCurrentObject->oHomeX, (s16) gCurrentObject->oHomeY,
+                                           (s16) gCurrentObject->oHomeZ);
+                break;
         }
     }
 }

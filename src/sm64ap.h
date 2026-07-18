@@ -81,7 +81,26 @@ extern "C" {
 #define SM64AP_NUM_BLOCKSANITY_CHECKS 103
 #define SM64AP_LOCATIONID_BLOCKSANITY_END (SM64AP_LOCATIONID_BLOCKSANITY_START + SM64AP_NUM_BLOCKSANITY_CHECKS - 1)
 
-#define SM64AP_NUM_LOCS (SM64AP_LOCATIONID_BLOCKSANITY_END - SM64AP_ID_OFFSET + 1)
+// Signsanity: every readable sign (wooden signpost or wall sign) is its own check.
+#define SM64AP_LOCATIONID_SIGNSANITY_START (SM64AP_LOCATIONID_BLOCKSANITY_END + 1)
+#define SM64AP_NUM_SIGNSANITY_CHECKS 91
+#define SM64AP_LOCATIONID_SIGNSANITY_END (SM64AP_LOCATIONID_SIGNSANITY_START + SM64AP_NUM_SIGNSANITY_CHECKS - 1)
+
+// Toadsanity: every Toad NPC that doesn't already give a Star is its own check.
+#define SM64AP_LOCATIONID_TOADSANITY_START (SM64AP_LOCATIONID_SIGNSANITY_END + 1)
+#define SM64AP_NUM_TOADSANITY_CHECKS 5
+#define SM64AP_LOCATIONID_TOADSANITY_END (SM64AP_LOCATIONID_TOADSANITY_START + SM64AP_NUM_TOADSANITY_CHECKS - 1)
+
+// Cannonsanity: every cannon (course cannons, Castle Grounds, and WMotR) is its own check.
+#define SM64AP_LOCATIONID_CANNONSANITY_START (SM64AP_LOCATIONID_TOADSANITY_END + 1)
+#define SM64AP_NUM_CANNONSANITY_CHECKS 12
+#define SM64AP_LOCATIONID_CANNONSANITY_END (SM64AP_LOCATIONID_CANNONSANITY_START + SM64AP_NUM_CANNONSANITY_CHECKS - 1)
+
+#define SM64AP_NUM_LOCS (SM64AP_LOCATIONID_CANNONSANITY_END - SM64AP_ID_OFFSET + 1)
+
+// New item: unlocks the pipe in Bowser in the Sky that leads to the BitS Bowser fight.
+// Without this item, the pipe does not spawn at all.
+#define SM64AP_ID_BITS_PIPE (SM64AP_ID_OFFSET + 1770)
 
 #define SM64AP_NUM_ABILITIES 11
 #define SM64AP_NUM_PAINTING_LOCKS 15
@@ -319,6 +338,10 @@ AP_EXTERN_C int SM64AP_ResolveOneUpLocation(s16, s16, s16, s16, s16, s16, s16);
 AP_EXTERN_C bool SM64AP_ShouldSuppressOneUp(int);
 AP_EXTERN_C bool SM64AP_CollectOneUp(int);
 AP_EXTERN_C void SM64AP_SendBlocksanityCheck(s16, s16, s32, s16, s16, s16);
+AP_EXTERN_C void SM64AP_SendSignsanityCheck(s16, s16, s32, s16, s16, s16);
+AP_EXTERN_C void SM64AP_SendToadsanityCheck(s16, s16, s16, s16, s16);
+AP_EXTERN_C void SM64AP_SendCannonsanityCheck(s16, s16);
+AP_EXTERN_C bool SM64AP_HaveBitsPipe();
 AP_EXTERN_C bool SM64AP_ShouldSpawnBowserStageOneUp(s16, s16, u32);
 AP_EXTERN_C bool SM64AP_HaveKey1();
 AP_EXTERN_C bool SM64AP_HaveKey2();

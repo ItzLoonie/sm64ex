@@ -10,6 +10,7 @@ extern "C" {
     #include "gfx_dimensions.h"
     #include "level_table.h"
     #include "course_table.h"
+    #include "dialog_ids.h"
     #include "model_ids.h"
     #include "seq_ids.h"
     #include "engine/behavior_script.h"
@@ -64,6 +65,7 @@ bool sm64_have_yoshi = false;
 bool sm64_have_bitfs = false;
 bool sm64_have_hat = false;
 bool sm64_have_vcutm_entrance = false;
+bool sm64_have_bits_pipe = false;
 bool sm64_1up_checks_enabled = false;
 bool sm64_buddy_checks_enabled = true;
 bool sm64_bowser_stage_1up_item_behavior = false;
@@ -92,6 +94,9 @@ std::bitset<SM64AP_NUM_OBJECT_ITEMS> sm64_have_object_items;
 std::bitset<SM64AP_NUM_COIN_CHECKS> sm64_sent_coin_checks;
 std::bitset<SM64AP_NUM_1UP_CHECKS> sm64_sent_1up_checks;
 std::bitset<SM64AP_NUM_BLOCKSANITY_CHECKS> sm64_sent_blocksanity_checks;
+std::bitset<SM64AP_NUM_SIGNSANITY_CHECKS> sm64_sent_signsanity_checks;
+std::bitset<SM64AP_NUM_TOADSANITY_CHECKS> sm64_sent_toadsanity_checks;
+std::bitset<SM64AP_NUM_CANNONSANITY_CHECKS> sm64_sent_cannonsanity_checks;
 std::set<int> sm64_sent_box_checks;
 int* sm64_clockaction = nullptr;
 int sm64_cost_firstbowserdoor = 8;
@@ -275,6 +280,148 @@ static constexpr SM64APBlocksanitySource SM64AP_BLOCKSANITY_SOURCES[SM64AP_NUM_B
 static_assert(sizeof(SM64AP_BLOCKSANITY_SOURCES) / sizeof(SM64AP_BLOCKSANITY_SOURCES[0])
               == SM64AP_NUM_BLOCKSANITY_CHECKS,
               "Blocksanity source count must match location count");
+
+struct SM64APSignsanitySource {
+    s16 level;
+    s16 area;
+    s32 dialogId;
+    s16 x;
+    s16 y;
+    s16 z;
+};
+
+// Every wooden signpost / wall sign (bhvMessagePanel, bhvSignOnWall) placed via a level's
+// macro object list, identified by level + area + dialog id + position (all are unique).
+static constexpr SM64APSignsanitySource SM64AP_SIGNSANITY_SOURCES[SM64AP_NUM_SIGNSANITY_CHECKS] = {
+    { LEVEL_BBH, 1, DIALOG_086, -1546, -204, 4813 },
+    { LEVEL_BBH, 1, DIALOG_063, -800, -204, 2915 },
+    { LEVEL_BBH, 1, DIALOG_085, 400, -204, 3057 },
+    { LEVEL_BBH, 1, DIALOG_102, 2026, -204, 2966 },
+    { LEVEL_BITDW, 1, DIALOG_066, 5940, 2765, -280 },
+    { LEVEL_BOB, 1, DIALOG_074, 6860, 2041, -6640 },
+    { LEVEL_BOB, 1, DIALOG_112, 3911, 3529, -7081 },
+    { LEVEL_BOB, 1, DIALOG_032, -7000, 1024, -2099 },
+    { LEVEL_BOB, 1, DIALOG_104, -6020, 768, 2957 },
+    { LEVEL_BOB, 1, DIALOG_015, -4000, 0, 6050 },
+    { LEVEL_BOB, 1, DIALOG_095, -4000, 0, 6300 },
+    { LEVEL_BOB, 1, DIALOG_039, -2224, 990, -4359 },
+    { LEVEL_BOB, 1, DIALOG_035, -3110, 104, 5064 },
+    { LEVEL_BOB, 1, DIALOG_050, -3530, 1415, 430 },
+    { LEVEL_BOB, 1, DIALOG_113, 66, 0, 6977 },
+    { LEVEL_BOB, 1, DIALOG_008, 1230, 768, 3258 },
+    { LEVEL_BOB, 1, DIALOG_064, 3394, 3072, 1846 },
+    { LEVEL_BOB, 1, DIALOG_053, 5053, 3073, 2180 },
+    { LEVEL_CASTLE_COURTYARD, 1, DIALOG_159, -3180, 20, 330 },
+    { LEVEL_CASTLE_COURTYARD, 1, DIALOG_160, -300, 0, -3600 },
+    { LEVEL_CASTLE_COURTYARD, 1, DIALOG_102, 300, 0, -3600 },
+    { LEVEL_CASTLE_COURTYARD, 1, DIALOG_158, 3180, 20, 330 },
+    { LEVEL_CASTLE_GROUNDS, 1, DIALOG_051, -4666, 260, 922 },
+    { LEVEL_CASTLE_GROUNDS, 1, DIALOG_167, -1566, 260, 3503 },
+    { LEVEL_CASTLE_GROUNDS, 1, DIALOG_065, 1740, 35, 2500 },
+    { LEVEL_CASTLE_GROUNDS, 1, DIALOG_050, 5288, 722, -800 },
+    { LEVEL_CASTLE, 1, DIALOG_052, -2278, -410, -3002 },
+    { LEVEL_CASTLE, 1, DIALOG_046, -3185, 205, -410 },
+    { LEVEL_CASTLE, 1, DIALOG_070, -3185, 205, -51 },
+    { LEVEL_CASTLE, 1, DIALOG_069, 435, 0, -1137 },
+    { LEVEL_CASTLE, 1, DIALOG_075, 1178, 614, -2434 },
+    { LEVEL_CASTLE, 1, DIALOG_147, 1670, 307, -1144 },
+    { LEVEL_CASTLE, 2, DIALOG_019, 164, 1203, 2278 },
+    { LEVEL_CASTLE, 3, DIALOG_077, 6400, -1178, -1270 },
+    { LEVEL_CCM, 1, DIALOG_094, -4350, -4864, -4813 },
+    { LEVEL_CCM, 1, DIALOG_049, -309, -4889, -3690 },
+    { LEVEL_CCM, 1, DIALOG_091, -1037, -3583, 5872 },
+    { LEVEL_CCM, 1, DIALOG_040, -2412, 2912, -878 },
+    { LEVEL_CCM, 1, DIALOG_040, 1900, -1535, 3500 },
+    { LEVEL_CCM, 1, DIALOG_087, -1060, 2560, -1840 },
+    { LEVEL_CCM, 2, DIALOG_054, -5320, 6656, -6540 },
+    { LEVEL_COTMC, 1, DIALOG_123, -71, 20, 720 },
+    { LEVEL_DDD, 2, DIALOG_053, 3086, 110, 6120 },
+    { LEVEL_HMC, 1, DIALOG_127, 500, -4300, 3644 },
+    { LEVEL_HMC, 1, DIALOG_122, -3359, 1536, 298 },
+    { LEVEL_HMC, 1, DIALOG_126, -3184, 0, 699 },
+    { LEVEL_HMC, 1, DIALOG_043, -4370, 2860, -2243 },
+    { LEVEL_HMC, 1, DIALOG_138, -3092, 2033, -7685 },
+    { LEVEL_HMC, 1, DIALOG_089, -6060, 2048, 5960 },
+    { LEVEL_HMC, 1, DIALOG_050, -6770, 1845, 4577 },
+    { LEVEL_HMC, 1, DIALOG_139, 510, 0, 5380 },
+    { LEVEL_HMC, 1, DIALOG_088, 838, 2052, 3580 },
+    { LEVEL_HMC, 1, DIALOG_140, 2510, 0, 2800 },
+    { LEVEL_HMC, 1, DIALOG_071, 2500, 217, 50 },
+    { LEVEL_HMC, 1, DIALOG_062, 2900, 217, 50 },
+    { LEVEL_HMC, 1, DIALOG_124, 2006, 0, 6713 },
+    { LEVEL_HMC, 1, DIALOG_125, 5439, 0, 2785 },
+    { LEVEL_JRB, 1, DIALOG_060, -6325, 1126, 1730 },
+    { LEVEL_JRB, 1, DIALOG_113, -6910, 1120, 2380 },
+    { LEVEL_JRB, 1, DIALOG_073, -900, -2966, -2200 },
+    { LEVEL_JRB, 1, DIALOG_051, -2552, 1331, 6573 },
+    { LEVEL_JRB, 1, DIALOG_169, 5290, -2966, -4740 },
+    { LEVEL_LLL, 1, DIALOG_086, -3980, 154, 6057 },
+    { LEVEL_LLL, 1, DIALOG_068, -3728, 154, 6057 },
+    { LEVEL_LLL, 1, DIALOG_016, 1350, 154, 5942 },
+    { LEVEL_PSS, 1, DIALOG_149, 3580, 6140, -5180 },
+    { LEVEL_SL, 1, DIALOG_148, -3600, 1024, -800 },
+    { LEVEL_SL, 1, DIALOG_061, -835, 1125, -3856 },
+    { LEVEL_SL, 1, DIALOG_016, -5050, 1020, 6026 },
+    { LEVEL_SL, 1, DIALOG_086, 4086, 1024, 400 },
+    { LEVEL_SSL, 1, DIALOG_032, -3260, 256, 800 },
+    { LEVEL_SSL, 1, DIALOG_016, 5702, 614, 2974 },
+    { LEVEL_SSL, 1, DIALOG_157, 5130, 26, -370 },
+    { LEVEL_SSL, 2, DIALOG_103, -3560, 0, -4065 },
+    { LEVEL_SSL, 2, DIALOG_043, 2196, 640, -3329 },
+    { LEVEL_THI, 1, DIALOG_165, -886, -2559, 6655 },
+    { LEVEL_THI, 1, DIALOG_166, -2370, -511, 2320 },
+    { LEVEL_THI, 1, DIALOG_091, 6728, -2559, 1561 },
+    { LEVEL_TTM, 1, DIALOG_091, -1126, -3448, -4400 },
+    { LEVEL_TTM, 1, DIALOG_072, 3644, -1304, 1422 },
+    { LEVEL_TTM, 1, DIALOG_094, 622, -4331, 5466 },
+    { LEVEL_WDW, 1, DIALOG_081, -2077, 2816, -660 },
+    { LEVEL_WDW, 1, DIALOG_053, 740, 3060, -3680 },
+    { LEVEL_WF, 1, DIALOG_078, -2932, 386, -157 },
+    { LEVEL_WF, 1, DIALOG_051, -2705, 2560, 59 },
+    { LEVEL_WF, 1, DIALOG_036, -2540, 2560, -900 },
+    { LEVEL_WF, 1, DIALOG_113, 2930, 1075, -3740 },
+    { LEVEL_WF, 1, DIALOG_042, 1600, 2560, 2600 },
+    { LEVEL_WF, 1, DIALOG_096, 3460, 2304, -40 },
+    { LEVEL_WF, 1, DIALOG_104, 4800, 256, 3000 },
+    { LEVEL_WF, 1, DIALOG_018, 4200, 256, 5160 },
+};
+
+static_assert(sizeof(SM64AP_SIGNSANITY_SOURCES) / sizeof(SM64AP_SIGNSANITY_SOURCES[0])
+              == SM64AP_NUM_SIGNSANITY_CHECKS,
+              "Signsanity source count must match location count");
+
+struct SM64APToadsanitySource {
+    s16 level;
+    s16 area;
+    s16 x;
+    s16 y;
+    s16 z;
+};
+
+// The five Toad NPCs in the Castle that talk but don't hand out a Star (the three Star Toads
+// are handled separately by SM64AP_HaveToads()/the BASEMENTTOAD/SECONDFLOORTOAD/THIRDFLOORTOAD
+// locations and are intentionally excluded here).
+static constexpr SM64APToadsanitySource SM64AP_TOADSANITY_SOURCES[SM64AP_NUM_TOADSANITY_CHECKS] = {
+    { LEVEL_CASTLE, 1, -1671, 0, 1313 },
+    { LEVEL_CASTLE, 1, 1524, 307, 458 },
+    { LEVEL_CASTLE, 1, 596, -306, -2637 },
+    { LEVEL_CASTLE, 2, 837, 1203, 3020 },
+    { LEVEL_CASTLE, 3, -4048, -1381, -1334 },
+};
+
+static_assert(sizeof(SM64AP_TOADSANITY_SOURCES) / sizeof(SM64AP_TOADSANITY_SOURCES[0])
+              == SM64AP_NUM_TOADSANITY_CHECKS,
+              "Toadsanity source count must match location count");
+
+// Cannonsanity: one check per cannon. The first 10 entries correspond 1:1 (by course index,
+// courseNum - 1) with the existing per-course Cannon Unlock items; Castle Grounds and Wing
+// Mario over the Rainbow are handled separately since they aren't part of that item range.
+static constexpr int SM64AP_CANNONSANITY_COURSE_IDX[10] = {
+    COURSE_BOB - 1, COURSE_WF - 1, COURSE_JRB - 1, COURSE_CCM - 1, COURSE_SSL - 1,
+    COURSE_SL - 1, COURSE_WDW - 1, COURSE_TTM - 1, COURSE_THI - 1, COURSE_RR - 1,
+};
+static constexpr int SM64AP_CANNONSANITY_WMOTR_OFFSET = 10;
+static constexpr int SM64AP_CANNONSANITY_CASTLE_OFFSET = 11;
 
 struct SM64APOneUpSource {
     s16 level;
@@ -474,6 +621,9 @@ void SM64AP_RecvItem(int64_t idx, bool notify) {
             break;
         case SM64AP_ID_VCUTM_ENTRANCE:
             sm64_have_vcutm_entrance = true;
+            break;
+        case SM64AP_ID_BITS_PIPE:
+            sm64_have_bits_pipe = true;
             break;
         case SM64AP_ID_BOWSER_STAGE_1UPS:
             sm64_have_bowser_stage_1ups = true;
@@ -761,6 +911,10 @@ bool SM64AP_HaveVcutmEntrance() {
     return sm64_have_vcutm_entrance;
 }
 
+bool SM64AP_HaveBitsPipe() {
+    return sm64_have_bits_pipe;
+}
+
 bool SM64AP_HatRestoreWithAnimationPending() {
     return sm64_hat_restore_with_animation_pending;
 }
@@ -1025,6 +1179,11 @@ bool SM64AP_ShouldSpawnLevelObject(s16 level, s16, s16 model, s16 x, s16 y, s16 
         case LEVEL_HMC:
             if (behavior_is(behavior, bhvDorrie)) {
                 return SM64AP_HaveObjectItem(SM64AP_OBJECT_ITEM_HMC_SWIMMING_BEAST);
+            }
+            return true;
+        case LEVEL_BITS:
+            if (behavior_is(behavior, bhvWarpPipe)) {
+                return SM64AP_HaveBitsPipe();
             }
             return true;
         case LEVEL_SL:
@@ -1824,6 +1983,9 @@ void SM64AP_ResetItems() {
     sm64_sent_coin_checks.reset();
     sm64_sent_1up_checks.reset();
     sm64_sent_blocksanity_checks.reset();
+    sm64_sent_signsanity_checks.reset();
+    sm64_sent_toadsanity_checks.reset();
+    sm64_sent_cannonsanity_checks.reset();
     sm64_sent_box_checks.clear();
     sm64_have_first_floor_key = false;
     sm64_have_progressive_basement_keys = 0;
@@ -1839,6 +2001,7 @@ void SM64AP_ResetItems() {
     sm64_have_bitfs = false;
     sm64_have_hat = false;
     sm64_have_vcutm_entrance = false;
+    sm64_have_bits_pipe = false;
     sm64_1up_checks_enabled = false;
     sm64_buddy_checks_enabled = true;
     sm64_bowser_stage_1up_item_behavior = false;
@@ -2284,6 +2447,138 @@ void SM64AP_SendBlocksanityCheck(s16 level, s16 area, s32 behParams, s16 x, s16 
     }
 
     sm64_sent_blocksanity_checks[offset] = true;
+    SM64AP_SendItem(locId);
+}
+
+static int SM64AP_SignsanityOffsetFromLocationId(int locId) {
+    int offset = locId - SM64AP_LOCATIONID_SIGNSANITY_START;
+
+    if (offset < 0 || offset >= SM64AP_NUM_SIGNSANITY_CHECKS) {
+        return -1;
+    }
+
+    return offset;
+}
+
+static int SM64AP_ResolveSignsanityLocation(s16 level, s16 area, s32 dialogId, s16 x, s16 y, s16 z) {
+    for (int i = 0; i < SM64AP_NUM_SIGNSANITY_CHECKS; i++) {
+        const SM64APSignsanitySource &source = SM64AP_SIGNSANITY_SOURCES[i];
+        if (source.level == level
+            && source.area == area
+            && source.dialogId == dialogId
+            && source.x == x
+            && source.y == y
+            && source.z == z) {
+            return SM64AP_LOCATIONID_SIGNSANITY_START + i;
+        }
+    }
+
+    return 0;
+}
+
+void SM64AP_SendSignsanityCheck(s16 level, s16 area, s32 dialogId, s16 x, s16 y, s16 z) {
+    if (!SM64AP_CanReportProgress()) {
+        return;
+    }
+
+    int locId = SM64AP_ResolveSignsanityLocation(level, area, dialogId, x, y, z);
+    int offset = SM64AP_SignsanityOffsetFromLocationId(locId);
+    if (offset < 0 || sm64_sent_signsanity_checks[offset] || SM64AP_CheckedLoc(locId)) {
+        return;
+    }
+
+    sm64_sent_signsanity_checks[offset] = true;
+    SM64AP_SendItem(locId);
+}
+
+static int SM64AP_ToadsanityOffsetFromLocationId(int locId) {
+    int offset = locId - SM64AP_LOCATIONID_TOADSANITY_START;
+
+    if (offset < 0 || offset >= SM64AP_NUM_TOADSANITY_CHECKS) {
+        return -1;
+    }
+
+    return offset;
+}
+
+static int SM64AP_ResolveToadsanityLocation(s16 level, s16 area, s16 x, s16 y, s16 z) {
+    for (int i = 0; i < SM64AP_NUM_TOADSANITY_CHECKS; i++) {
+        const SM64APToadsanitySource &source = SM64AP_TOADSANITY_SOURCES[i];
+        if (source.level == level
+            && source.area == area
+            && source.x == x
+            && source.y == y
+            && source.z == z) {
+            return SM64AP_LOCATIONID_TOADSANITY_START + i;
+        }
+    }
+
+    return 0;
+}
+
+void SM64AP_SendToadsanityCheck(s16 level, s16 area, s16 x, s16 y, s16 z) {
+    if (!SM64AP_CanReportProgress()) {
+        return;
+    }
+
+    int locId = SM64AP_ResolveToadsanityLocation(level, area, x, y, z);
+    int offset = SM64AP_ToadsanityOffsetFromLocationId(locId);
+    if (offset < 0 || sm64_sent_toadsanity_checks[offset] || SM64AP_CheckedLoc(locId)) {
+        return;
+    }
+
+    sm64_sent_toadsanity_checks[offset] = true;
+    SM64AP_SendItem(locId);
+}
+
+static int SM64AP_CannonsanityOffsetFromLocationId(int locId) {
+    int offset = locId - SM64AP_LOCATIONID_CANNONSANITY_START;
+
+    if (offset < 0 || offset >= SM64AP_NUM_CANNONSANITY_CHECKS) {
+        return -1;
+    }
+
+    return offset;
+}
+
+// Resolves which Cannonsanity slot a course index (courseNum - 1) belongs to, or -1 if the
+// course doesn't have a cannon.
+static int SM64AP_CannonsanitySlotForCourseIdx(int courseIdx) {
+    for (int i = 0; i < (int) (sizeof(SM64AP_CANNONSANITY_COURSE_IDX) / sizeof(SM64AP_CANNONSANITY_COURSE_IDX[0])); i++) {
+        if (SM64AP_CANNONSANITY_COURSE_IDX[i] == courseIdx) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// level should be gCurrLevelNum, courseNum should be gCurrCourseNum (1-indexed, or COURSE_NONE
+// for levels such as Castle Grounds and WMotR that aren't tracked via gCurrCourseNum).
+void SM64AP_SendCannonsanityCheck(s16 level, s16 courseNum) {
+    if (!SM64AP_CanReportProgress()) {
+        return;
+    }
+
+    int slot = -1;
+    if (level == LEVEL_WMOTR) {
+        slot = SM64AP_CANNONSANITY_WMOTR_OFFSET;
+    } else if (level == LEVEL_CASTLE_GROUNDS) {
+        slot = SM64AP_CANNONSANITY_CASTLE_OFFSET;
+    } else if (courseNum >= COURSE_MIN && courseNum <= COURSE_MAX) {
+        slot = SM64AP_CannonsanitySlotForCourseIdx(courseNum - 1);
+    }
+
+    if (slot < 0) {
+        return;
+    }
+
+    int locId = SM64AP_LOCATIONID_CANNONSANITY_START + slot;
+    int offset = SM64AP_CannonsanityOffsetFromLocationId(locId);
+    if (offset < 0 || sm64_sent_cannonsanity_checks[offset] || SM64AP_CheckedLoc(locId)) {
+        return;
+    }
+
+    sm64_sent_cannonsanity_checks[offset] = true;
     SM64AP_SendItem(locId);
 }
 
