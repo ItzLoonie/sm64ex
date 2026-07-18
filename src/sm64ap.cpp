@@ -47,7 +47,7 @@ extern "C" {
 
 // Set to false on some branch for compat with patches
 static constexpr bool SM64AP_SUPPORT_MOVE_RANDO = true;
-static constexpr const char *SM64AP_GAME_NAME = "SM64: Spicy Mycena 64";
+static constexpr const char *SM64AP_GAME_NAME = "SM64: Spiced Myceria 64";
 
 int starsCollected = 0;
 bool sm64_locations[SM64AP_NUM_LOCS];
