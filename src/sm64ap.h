@@ -338,7 +338,7 @@ AP_EXTERN_C int SM64AP_ResolveOneUpLocation(s16, s16, s16, s16, s16, s16, s16);
 AP_EXTERN_C bool SM64AP_ShouldSuppressOneUp(int);
 AP_EXTERN_C bool SM64AP_CollectOneUp(int);
 AP_EXTERN_C void SM64AP_SendBlocksanityCheck(s16, s16, s32, s16, s16, s16);
-AP_EXTERN_C void SM64AP_SendSignsanityCheck(s16, s16, s32, s16, s16, s16);
+AP_EXTERN_C void SM64AP_SendSignsanityCheck(s16, s16, s32, s16, s16);
 AP_EXTERN_C void SM64AP_SendToadsanityCheck(s16, s16, s16, s16, s16);
 AP_EXTERN_C void SM64AP_SendCannonsanityCheck(s16, s16);
 AP_EXTERN_C bool SM64AP_HaveBitsPipe();

@@ -141,8 +141,8 @@ static void toad_message_talking(void) {
                 break;
             default:
                 SM64AP_SendToadsanityCheck(gCurrLevelNum, gCurrAreaIndex,
-                                           (s16) gCurrentObject->oHomeX, (s16) gCurrentObject->oHomeY,
-                                           (s16) gCurrentObject->oHomeZ);
+                                           (s16) gCurrentObject->oPosX, (s16) gCurrentObject->oPosY,
+                                           (s16) gCurrentObject->oPosZ);
                 break;
         }
     }

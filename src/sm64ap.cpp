@@ -2460,14 +2460,13 @@ static int SM64AP_SignsanityOffsetFromLocationId(int locId) {
     return offset;
 }
 
-static int SM64AP_ResolveSignsanityLocation(s16 level, s16 area, s32 dialogId, s16 x, s16 y, s16 z) {
+static int SM64AP_ResolveSignsanityLocation(s16 level, s16 area, s32 dialogId, s16 x, s16 z) {
     for (int i = 0; i < SM64AP_NUM_SIGNSANITY_CHECKS; i++) {
         const SM64APSignsanitySource &source = SM64AP_SIGNSANITY_SOURCES[i];
         if (source.level == level
             && source.area == area
             && source.dialogId == dialogId
             && source.x == x
-            && source.y == y
             && source.z == z) {
             return SM64AP_LOCATIONID_SIGNSANITY_START + i;
         }
@@ -2476,12 +2475,12 @@ static int SM64AP_ResolveSignsanityLocation(s16 level, s16 area, s32 dialogId, s
     return 0;
 }
 
-void SM64AP_SendSignsanityCheck(s16 level, s16 area, s32 dialogId, s16 x, s16 y, s16 z) {
+void SM64AP_SendSignsanityCheck(s16 level, s16 area, s32 dialogId, s16 x, s16 z) {
     if (!SM64AP_CanReportProgress()) {
         return;
     }
 
-    int locId = SM64AP_ResolveSignsanityLocation(level, area, dialogId, x, y, z);
+    int locId = SM64AP_ResolveSignsanityLocation(level, area, dialogId, x, z);
     int offset = SM64AP_SignsanityOffsetFromLocationId(locId);
     if (offset < 0 || sm64_sent_signsanity_checks[offset] || SM64AP_CheckedLoc(locId)) {
         return;

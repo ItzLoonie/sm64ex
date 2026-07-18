@@ -2481,6 +2481,7 @@ enum PauseCourseUnlockType {
     PAUSE_COURSE_UNLOCK_LEVEL_CAP,
     PAUSE_COURSE_UNLOCK_CANNON,
     PAUSE_COURSE_UNLOCK_WMOTR_CANNON,
+    PAUSE_COURSE_UNLOCK_BITS_PIPE,
 };
 
 enum PauseCourseUnlockArea {
@@ -2600,6 +2601,7 @@ static const u8 sUnlockMips1[] = { TEXT_UNLOCK_MIPS1 };
 static const u8 sUnlockMips2[] = { TEXT_UNLOCK_MIPS2 };
 static const u8 sUnlockPeng[] = { TEXT_UNLOCK_PENG };
 static const u8 sUnlockPipes[] = { TEXT_UNLOCK_PIPES };
+static const u8 sUnlockPipe[] = { TEXT_UNLOCK_PIPE };
 static const u8 sUnlockPoles[] = { TEXT_UNLOCK_POLES };
 static const u8 sUnlockPurple[] = { TEXT_UNLOCK_PURPLE };
 static const u8 sUnlockRaised[] = { TEXT_UNLOCK_RAISED };
@@ -2761,6 +2763,7 @@ static const struct PauseCourseUnlock sPauseCourseUnlocks[] = {
     { SM64AP_LEVEL_MOVE_AREA_BITDW, PAUSE_COURSE_UNLOCK_LEVEL_CAP, SM64AP_LEVEL_CAP_BITDW_METAL, sUnlockMetal },
     { SM64AP_LEVEL_MOVE_AREA_BITDW, PAUSE_COURSE_UNLOCK_OBJECT_ITEM, SM64AP_OBJECT_ITEM_PURPLE_SWITCHES, sUnlockPurple },
     { SM64AP_LEVEL_MOVE_AREA_BITS, PAUSE_COURSE_UNLOCK_OBJECT_ITEM, SM64AP_OBJECT_ITEM_PURPLE_SWITCHES, sUnlockPurple },
+    { SM64AP_LEVEL_MOVE_AREA_BITS, PAUSE_COURSE_UNLOCK_BITS_PIPE, 0, sUnlockPipe },
     { SM64AP_LEVEL_MOVE_AREA_VCUTM, PAUSE_COURSE_UNLOCK_LEVEL_CAP, SM64AP_LEVEL_CAP_VCUTM_VANISH, sUnlockVanish },
     { SM64AP_LEVEL_MOVE_AREA_VCUTM, PAUSE_COURSE_UNLOCK_OBJECT_ITEM, SM64AP_OBJECT_ITEM_CHECKERBOARD_PLATFORMS, sUnlockCheck },
     { PAUSE_COURSE_UNLOCK_AREA_COTMC, PAUSE_COURSE_UNLOCK_LEVEL_CAP, SM64AP_LEVEL_CAP_COTMC_METAL, sUnlockMetal },
@@ -2818,6 +2821,8 @@ static bool pause_course_unlock_collected(const struct PauseCourseUnlock *unlock
             return SM64AP_HaveCannon(view->courseNum);
         case PAUSE_COURSE_UNLOCK_WMOTR_CANNON:
             return SM64AP_HaveWmotrCannon();
+        case PAUSE_COURSE_UNLOCK_BITS_PIPE:
+            return SM64AP_HaveBitsPipe();
     }
 
     return false;
