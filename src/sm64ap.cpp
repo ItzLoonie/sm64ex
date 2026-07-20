@@ -47,7 +47,7 @@ extern "C" {
 
 // Set to false on some branch for compat with patches
 static constexpr bool SM64AP_SUPPORT_MOVE_RANDO = true;
-static constexpr const char *SM64AP_GAME_NAME = "SM64: Spiced Myceria 64";
+static constexpr const char *SM64AP_GAME_NAME = "SM64: Spicy Mycena EX";
 
 int starsCollected = 0;
 bool sm64_locations[SM64AP_NUM_LOCS];
@@ -66,6 +66,10 @@ bool sm64_have_bitfs = false;
 bool sm64_have_hat = false;
 bool sm64_have_vcutm_entrance = false;
 bool sm64_have_bits_pipe = false;
+bool sm64_have_bitdw_pipe = false;
+int sm64_power_star_count = 0;
+bool sm64_power_stars_enabled = false;
+int sm64_required_power_stars = 0;
 bool sm64_1up_checks_enabled = false;
 bool sm64_buddy_checks_enabled = true;
 bool sm64_bowser_stage_1up_item_behavior = false;
@@ -79,6 +83,10 @@ bool sm64_no_despawn = false;
 bool sm64_have_wingcap = false;
 bool sm64_have_metalcap = false;
 bool sm64_have_vanishcap = false;
+int sm64_progressive_wing_cap_count = 0;
+int sm64_progressive_metal_cap_count = 0;
+int sm64_progressive_vanish_cap_count = 0;
+int sm64_progressive_swim_count = 0;
 bool sm64_show_global_cap_display = false;
 int sm64_moat_state = 0;
 bool sm64_have_cannon[15];
@@ -97,6 +105,7 @@ std::bitset<SM64AP_NUM_BLOCKSANITY_CHECKS> sm64_sent_blocksanity_checks;
 std::bitset<SM64AP_NUM_SIGNSANITY_CHECKS> sm64_sent_signsanity_checks;
 std::bitset<SM64AP_NUM_TOADSANITY_CHECKS> sm64_sent_toadsanity_checks;
 std::bitset<SM64AP_NUM_CANNONSANITY_CHECKS> sm64_sent_cannonsanity_checks;
+std::bitset<SM64AP_NUM_CHESTCHECKS_CHECKS> sm64_sent_chest_checks;
 std::set<int> sm64_sent_box_checks;
 int* sm64_clockaction = nullptr;
 int sm64_cost_firstbowserdoor = 8;
@@ -413,15 +422,97 @@ static_assert(sizeof(SM64AP_TOADSANITY_SOURCES) / sizeof(SM64AP_TOADSANITY_SOURC
               == SM64AP_NUM_TOADSANITY_CHECKS,
               "Toadsanity source count must match location count");
 
-// Cannonsanity: one check per cannon. The first 10 entries correspond 1:1 (by course index,
-// courseNum - 1) with the existing per-course Cannon Unlock items; Castle Grounds and Wing
-// Mario over the Rainbow are handled separately since they aren't part of that item range.
-static constexpr int SM64AP_CANNONSANITY_COURSE_IDX[10] = {
-    COURSE_BOB - 1, COURSE_WF - 1, COURSE_JRB - 1, COURSE_CCM - 1, COURSE_SSL - 1,
-    COURSE_SL - 1, COURSE_WDW - 1, COURSE_TTM - 1, COURSE_THI - 1, COURSE_RR - 1,
+// Cannonsanity: one check per individual cannon *object* (the entry point Mario dives/walks
+// into), not one per course -- several courses have more than one bhvCannonClosed door that all
+// respond to the same course-wide unlock flag (see save_file_is_cannon_unlocked()), and each is
+// independently reachable/enterable. Position data pulled directly from each level's
+// areas/1/macro.inc.c (macro_cannon_closed / macro_cannon_open placements); the "closed" door
+// objects copy their own placement position onto the real cannon they spawn on open
+// (see bhv_cannon_closed_init() in cannon_door.inc.c), so the entered cannon's own position at
+// runtime always matches the values below.
+struct SM64APCannonsanitySource {
+    s16 level;
+    s16 area;
+    s16 x;
+    s16 y;
+    s16 z;
 };
-static constexpr int SM64AP_CANNONSANITY_WMOTR_OFFSET = 10;
-static constexpr int SM64AP_CANNONSANITY_CASTLE_OFFSET = 11;
+
+static constexpr SM64APCannonsanitySource SM64AP_CANNONSANITY_SOURCES[SM64AP_NUM_CANNONSANITY_CHECKS] = {
+    // Bob-omb Battlefield (6 cannons: 5 from areas/1/macro.inc.c, plus a 6th placed directly
+    // in script.c that shares its position with the ACT_1-only water bomb cannon -- that spot
+    // is an enemy cannon during the King Bob-omb mission and the real player cannon for every
+    // other act)
+    { LEVEL_BOB, 1, -5018, 1332, -3533 },
+    { LEVEL_BOB, 1, 6349, 2080, -7066 },
+    { LEVEL_BOB, 1, 4243, 3071, -2451 },
+    { LEVEL_BOB, 1, 4352, 3072, 1229 },
+    { LEVEL_BOB, 1, 5376, 1537, 4610 },
+    { LEVEL_BOB, 1, -5694, 128, 5600 },
+    // Whomp's Fortress
+    { LEVEL_WF, 1, -1844, 1026, 3893 },
+    // Jolly Roger Bay
+    { LEVEL_JRB, 1, -4235, 1247, 2137 },
+    // Cool, Cool Mountain (3 cannons)
+    { LEVEL_CCM, 1, -3615, -4607, 4790 },
+    { LEVEL_CCM, 1, -5045, -1740, 4615 },
+    { LEVEL_CCM, 1, 1090, -4607, 5729 },
+    // Shifting Sand Land
+    { LEVEL_SSL, 1, 6863, 0, -6860 },
+    // Snowman's Land
+    { LEVEL_SL, 1, 4483, 821, 1168 },
+    // Wet-Dry World
+    { LEVEL_WDW, 1, -2688, 3328, 3198 },
+    // Tall, Tall Mountain
+    { LEVEL_TTM, 1, 5035, -3994, -3445 },
+    // Tiny-Huge Island
+    { LEVEL_THI, 1, 6656, -2832, 6964 },
+    // Rainbow Ride
+    { LEVEL_RR, 1, 5545, 3333, -2345 },
+    // Wing Mario over the Rainbow (2 cannons)
+    { LEVEL_WMOTR, 1, -4456, 827, 191 },
+    { LEVEL_WMOTR, 1, 3712, -2740, 5200 },
+    // Castle Grounds (always open, no Bob-omb Buddy)
+    { LEVEL_CASTLE_GROUNDS, 1, 2384, 70, 1961 },
+};
+
+static_assert(sizeof(SM64AP_CANNONSANITY_SOURCES) / sizeof(SM64AP_CANNONSANITY_SOURCES[0])
+              == SM64AP_NUM_CANNONSANITY_CHECKS,
+              "Cannonsanity source count must match location count");
+
+struct SM64APChestCheckSource {
+    s16 level;
+    s16 area;
+    s16 x;
+    s16 y;
+    s16 z;
+};
+
+// Every individual treasure chest. Each chest is uniquely identified by its own absolute spawn
+// position (see spawn_treasure_chest() / bhv_treasure_chest_{ship,jrb,}_init in
+// treasure_chest.inc.c), so no behParams/parent disambiguation is needed. Order here is
+// arbitrary but must line up 1:1 with SM64AP_LOCATIONID_CHESTCHECKS_START + index.
+static constexpr SM64APChestCheckSource SM64AP_CHESTCHECKS_SOURCES[SM64AP_NUM_CHESTCHECKS_CHECKS] = {
+    // Jolly Roger Bay - sunken ship chests (bhvTreasureChestsShip)
+    { LEVEL_JRB, 1, 400, -350, -2700 },
+    { LEVEL_JRB, 1, 650, -350, -940 },
+    { LEVEL_JRB, 1, -550, -350, -770 },
+    { LEVEL_JRB, 1, 100, -350, -1700 },
+    // Jolly Roger Bay - underwater chest room (bhvTreasureChestsJrb)
+    { LEVEL_JRB, 1, -1700, -2812, -1150 },
+    { LEVEL_JRB, 1, -1150, -2812, -1550 },
+    { LEVEL_JRB, 1, -2400, -2812, -1800 },
+    { LEVEL_JRB, 1, -1800, -2812, -2100 },
+    // Dire, Dire Docks chests (bhvTreasureChests)
+    { LEVEL_DDD, 1, -4500, -5119, 1300 },
+    { LEVEL_DDD, 1, -1800, -5119, 1050 },
+    { LEVEL_DDD, 1, -4500, -5119, -1100 },
+    { LEVEL_DDD, 1, -2400, -4607, 125 },
+};
+
+static_assert(sizeof(SM64AP_CHESTCHECKS_SOURCES) / sizeof(SM64AP_CHESTCHECKS_SOURCES[0])
+              == SM64AP_NUM_CHESTCHECKS_CHECKS,
+              "Chest check source count must match location count");
 
 struct SM64APOneUpSource {
     s16 level;
@@ -625,6 +716,12 @@ void SM64AP_RecvItem(int64_t idx, bool notify) {
         case SM64AP_ID_BITS_PIPE:
             sm64_have_bits_pipe = true;
             break;
+        case SM64AP_ID_BITDW_PIPE:
+            sm64_have_bitdw_pipe = true;
+            break;
+        case SM64AP_ID_POWER_STAR:
+            sm64_power_star_count++;
+            break;
         case SM64AP_ID_BOWSER_STAGE_1UPS:
             sm64_have_bowser_stage_1ups = true;
             break;
@@ -670,6 +767,18 @@ void SM64AP_RecvItem(int64_t idx, bool notify) {
             break;
         case SM64AP_ID_LEVEL_CAP(0) ... SM64AP_ID_LEVEL_CAP(SM64AP_NUM_LEVEL_CAPS - 1):
             sm64_have_level_caps[idx - SM64AP_LEVEL_CAP_OFFSET] = true;
+            break;
+        case SM64AP_ID_PROGRESSIVE_WING_CAP:
+            SM64AP_IncrementClamped(sm64_progressive_wing_cap_count, SM64AP_PROGRESSIVE_CAP_MAX);
+            break;
+        case SM64AP_ID_PROGRESSIVE_METAL_CAP:
+            SM64AP_IncrementClamped(sm64_progressive_metal_cap_count, SM64AP_PROGRESSIVE_CAP_MAX);
+            break;
+        case SM64AP_ID_PROGRESSIVE_VANISH_CAP:
+            SM64AP_IncrementClamped(sm64_progressive_vanish_cap_count, SM64AP_PROGRESSIVE_CAP_MAX);
+            break;
+        case SM64AP_ID_PROGRESSIVE_SWIM:
+            SM64AP_IncrementClamped(sm64_progressive_swim_count, SM64AP_PROGRESSIVE_SWIM_MAX);
             break;
         case SM64AP_ITEMID_1UP:
             gMarioState->numLives++;
@@ -913,6 +1022,10 @@ bool SM64AP_HaveVcutmEntrance() {
 
 bool SM64AP_HaveBitsPipe() {
     return sm64_have_bits_pipe;
+}
+
+bool SM64AP_HaveBitdwPipe() {
+    return sm64_have_bitdw_pipe;
 }
 
 bool SM64AP_HatRestoreWithAnimationPending() {
@@ -1183,7 +1296,12 @@ bool SM64AP_ShouldSpawnLevelObject(s16 level, s16, s16 model, s16 x, s16 y, s16 
             return true;
         case LEVEL_BITS:
             if (behavior_is(behavior, bhvWarpPipe)) {
-                return SM64AP_HaveBitsPipe();
+                return SM64AP_HaveBitsPipe() && SM64AP_HaveEnoughPowerStars();
+            }
+            return true;
+        case LEVEL_BITDW:
+            if (behavior_is(behavior, bhvWarpPipe)) {
+                return SM64AP_HaveBitdwPipe();
             }
             return true;
         case LEVEL_SL:
@@ -1542,6 +1660,16 @@ void SM64AP_SetOneUpChecks(int enabled) {
 
 void SM64AP_SetBuddyChecks(int enabled) {
     sm64_buddy_checks_enabled = enabled != 0;
+}
+
+void SM64AP_SetPowerStarsEnabled(int enabled) {
+    sm64_power_stars_enabled = enabled != 0;
+}
+
+// Precomputed server-side as ceil(TotalPowerStars * RequiredPowerStarPercent / 100); the client
+// just compares a received count against this, no percent math needed here.
+void SM64AP_SetRequiredPowerStars(int required) {
+    sm64_required_power_stars = required;
 }
 
 void SM64AP_SetBowserStageOneUpBehavior(int behavior) {
@@ -2002,6 +2130,10 @@ void SM64AP_ResetItems() {
     sm64_have_hat = false;
     sm64_have_vcutm_entrance = false;
     sm64_have_bits_pipe = false;
+    sm64_have_bitdw_pipe = false;
+    sm64_power_star_count = 0;
+    sm64_power_stars_enabled = false;
+    sm64_required_power_stars = 0;
     sm64_1up_checks_enabled = false;
     sm64_buddy_checks_enabled = true;
     sm64_bowser_stage_1up_item_behavior = false;
@@ -2013,6 +2145,10 @@ void SM64AP_ResetItems() {
     sm64_have_wingcap = false;
     sm64_have_metalcap = false;
     sm64_have_vanishcap = false;
+    sm64_progressive_wing_cap_count = 0;
+    sm64_progressive_metal_cap_count = 0;
+    sm64_progressive_vanish_cap_count = 0;
+    sm64_progressive_swim_count = 0;
     starsCollected = 0;
 
     AP_SetServerDataRequest moat_request;
@@ -2062,6 +2198,8 @@ void SM64AP_GenericInit() {
     AP_RegisterSlotDataIntCallback("ShowGlobalCapDisplay", &SM64AP_SetGlobalCapDisplay);
     AP_RegisterSlotDataIntCallback("OneUpChecks", &SM64AP_SetOneUpChecks);
     AP_RegisterSlotDataIntCallback("BuddyChecks", &SM64AP_SetBuddyChecks);
+    AP_RegisterSlotDataIntCallback("PowerStarsEnabled", &SM64AP_SetPowerStarsEnabled);
+    AP_RegisterSlotDataIntCallback("RequiredPowerStars", &SM64AP_SetRequiredPowerStars);
     AP_RegisterSlotDataIntCallback("BowserStage1UpBehavior", &SM64AP_SetBowserStageOneUpBehavior);
     AP_RegisterSlotDataIntCallback("EasyButterflies", &SM64AP_SetEasyButterflies);
     AP_RegisterSlotDataIntCallback("NoDespawn", &SM64AP_SetNoDespawn);
@@ -2302,6 +2440,22 @@ bool SM64AP_BuddyChecksEnabled() {
     return sm64_buddy_checks_enabled;
 }
 
+bool SM64AP_PowerStarsEnabled() {
+    return sm64_power_stars_enabled;
+}
+
+int SM64AP_GetPowerStarCount() {
+    return sm64_power_star_count;
+}
+
+bool SM64AP_HaveEnoughPowerStars() {
+    if (!sm64_power_stars_enabled) {
+        return true;
+    }
+
+    return sm64_power_star_count >= sm64_required_power_stars;
+}
+
 static int SM64AP_OneUpCheckOffsetFromLocationId(int locId) {
     int offset = locId - SM64AP_LOCATIONID_1UP_CHECK_START;
 
@@ -2540,44 +2694,76 @@ static int SM64AP_CannonsanityOffsetFromLocationId(int locId) {
     return offset;
 }
 
-// Resolves which Cannonsanity slot a course index (courseNum - 1) belongs to, or -1 if the
-// course doesn't have a cannon.
-static int SM64AP_CannonsanitySlotForCourseIdx(int courseIdx) {
-    for (int i = 0; i < (int) (sizeof(SM64AP_CANNONSANITY_COURSE_IDX) / sizeof(SM64AP_CANNONSANITY_COURSE_IDX[0])); i++) {
-        if (SM64AP_CANNONSANITY_COURSE_IDX[i] == courseIdx) {
-            return i;
+static int SM64AP_ResolveCannonsanityLocation(s16 level, s16 area, s16 x, s16 y, s16 z) {
+    for (int i = 0; i < SM64AP_NUM_CANNONSANITY_CHECKS; i++) {
+        const SM64APCannonsanitySource &source = SM64AP_CANNONSANITY_SOURCES[i];
+        if (source.level == level
+            && source.area == area
+            && source.x == x
+            && source.y == y
+            && source.z == z) {
+            return SM64AP_LOCATIONID_CANNONSANITY_START + i;
         }
     }
-    return -1;
+
+    return 0;
 }
 
-// level should be gCurrLevelNum, courseNum should be gCurrCourseNum (1-indexed, or COURSE_NONE
-// for levels such as Castle Grounds and WMotR that aren't tracked via gCurrCourseNum).
-void SM64AP_SendCannonsanityCheck(s16 level, s16 courseNum) {
+// level/area should be gCurrLevelNum/gCurrAreaIndex; x/y/z should be the entered cannon
+// object's own position (m->usedObj->oPos{X,Y,Z}), which (for cannons unlocked via a
+// bhvCannonClosed door) is copied from that door's own placement position on open.
+void SM64AP_SendCannonsanityCheck(s16 level, s16 area, s16 x, s16 y, s16 z) {
     if (!SM64AP_CanReportProgress()) {
         return;
     }
 
-    int slot = -1;
-    if (level == LEVEL_WMOTR) {
-        slot = SM64AP_CANNONSANITY_WMOTR_OFFSET;
-    } else if (level == LEVEL_CASTLE_GROUNDS) {
-        slot = SM64AP_CANNONSANITY_CASTLE_OFFSET;
-    } else if (courseNum >= COURSE_MIN && courseNum <= COURSE_MAX) {
-        slot = SM64AP_CannonsanitySlotForCourseIdx(courseNum - 1);
-    }
-
-    if (slot < 0) {
-        return;
-    }
-
-    int locId = SM64AP_LOCATIONID_CANNONSANITY_START + slot;
+    int locId = SM64AP_ResolveCannonsanityLocation(level, area, x, y, z);
     int offset = SM64AP_CannonsanityOffsetFromLocationId(locId);
     if (offset < 0 || sm64_sent_cannonsanity_checks[offset] || SM64AP_CheckedLoc(locId)) {
         return;
     }
 
     sm64_sent_cannonsanity_checks[offset] = true;
+    SM64AP_SendItem(locId);
+}
+
+static int SM64AP_ChestCheckOffsetFromLocationId(int locId) {
+    int offset = locId - SM64AP_LOCATIONID_CHESTCHECKS_START;
+
+    if (offset < 0 || offset >= SM64AP_NUM_CHESTCHECKS_CHECKS) {
+        return -1;
+    }
+
+    return offset;
+}
+
+static int SM64AP_ResolveChestCheckLocation(s16 level, s16 area, s16 x, s16 y, s16 z) {
+    for (int i = 0; i < SM64AP_NUM_CHESTCHECKS_CHECKS; i++) {
+        const SM64APChestCheckSource &source = SM64AP_CHESTCHECKS_SOURCES[i];
+        if (source.level == level
+            && source.area == area
+            && source.x == x
+            && source.y == y
+            && source.z == z) {
+            return SM64AP_LOCATIONID_CHESTCHECKS_START + i;
+        }
+    }
+
+    return 0;
+}
+
+void SM64AP_SendChestCheck(s16 level, s16 area, s16 x, s16 y, s16 z) {
+    if (!SM64AP_CanReportProgress()) {
+        return;
+    }
+
+    int locId = SM64AP_ResolveChestCheckLocation(level, area, x, y, z);
+    int offset = SM64AP_ChestCheckOffsetFromLocationId(locId);
+    if (offset < 0 || sm64_sent_chest_checks[offset] || SM64AP_CheckedLoc(locId)) {
+        return;
+    }
+
+    sm64_sent_chest_checks[offset] = true;
     SM64AP_SendItem(locId);
 }
 
@@ -3647,6 +3833,22 @@ bool SM64AP_CanClimb() {
 
 bool SM64AP_CanLedgeGrab() {
     return SM64AP_HaveAbilityForCurrentLevel(SM64AP_ID_LEDGEGRAB - SM64AP_ABILITY_OFFSET);
+}
+
+int SM64AP_GetProgressiveWingCapBonusFrames() {
+    return sm64_progressive_wing_cap_count * SM64AP_PROGRESSIVE_CAP_SECONDS_PER_STACK * 30;
+}
+
+int SM64AP_GetProgressiveMetalCapBonusFrames() {
+    return sm64_progressive_metal_cap_count * SM64AP_PROGRESSIVE_CAP_SECONDS_PER_STACK * 30;
+}
+
+int SM64AP_GetProgressiveVanishCapBonusFrames() {
+    return sm64_progressive_vanish_cap_count * SM64AP_PROGRESSIVE_CAP_SECONDS_PER_STACK * 30;
+}
+
+float SM64AP_GetSwimSpeedMultiplier() {
+    return 1.0f + 0.10f * sm64_progressive_swim_count;
 }
 
 

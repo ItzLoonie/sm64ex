@@ -1026,7 +1026,7 @@ void update_hud_values(void) {
         }
 #endif
 
-        gHudDisplay.stars = SM64AP_GetStars();
+        gHudDisplay.stars = SM64AP_PowerStarsEnabled() ? SM64AP_GetPowerStarCount() : SM64AP_GetStars();
         SM64AP_PrintNext();
         gHudDisplay.lives = gMarioState->numLives;
         gHudDisplay.keys = gMarioState->numKeys;

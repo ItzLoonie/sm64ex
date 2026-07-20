@@ -686,7 +686,9 @@ s32 act_in_cannon(struct MarioState *m) {
 
             m->forwardVel = 0.0f;
 
-            SM64AP_SendCannonsanityCheck(gCurrLevelNum, gCurrCourseNum);
+            SM64AP_SendCannonsanityCheck(gCurrLevelNum, gCurrAreaIndex,
+                                          (s16) m->usedObj->oPosX, (s16) m->usedObj->oPosY,
+                                          (s16) m->usedObj->oPosZ);
 
             m->actionState = 1;
             break;

@@ -479,7 +479,7 @@ void render_hud(void) {
             render_hud_coins();
         }
 
-        if (hudDisplayFlags & HUD_DISPLAY_FLAG_STAR_COUNT && configHUD) {
+        if ((hudDisplayFlags & HUD_DISPLAY_FLAG_STAR_COUNT || SM64AP_PowerStarsEnabled()) && configHUD) {
             render_hud_stars();
         }
 

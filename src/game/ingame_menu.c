@@ -2482,6 +2482,7 @@ enum PauseCourseUnlockType {
     PAUSE_COURSE_UNLOCK_CANNON,
     PAUSE_COURSE_UNLOCK_WMOTR_CANNON,
     PAUSE_COURSE_UNLOCK_BITS_PIPE,
+    PAUSE_COURSE_UNLOCK_BITDW_PIPE,
 };
 
 enum PauseCourseUnlockArea {
@@ -2762,6 +2763,7 @@ static const struct PauseCourseUnlock sPauseCourseUnlocks[] = {
 
     { SM64AP_LEVEL_MOVE_AREA_BITDW, PAUSE_COURSE_UNLOCK_LEVEL_CAP, SM64AP_LEVEL_CAP_BITDW_METAL, sUnlockMetal },
     { SM64AP_LEVEL_MOVE_AREA_BITDW, PAUSE_COURSE_UNLOCK_OBJECT_ITEM, SM64AP_OBJECT_ITEM_PURPLE_SWITCHES, sUnlockPurple },
+    { SM64AP_LEVEL_MOVE_AREA_BITDW, PAUSE_COURSE_UNLOCK_BITDW_PIPE, 0, sUnlockPipe },
     { SM64AP_LEVEL_MOVE_AREA_BITS, PAUSE_COURSE_UNLOCK_OBJECT_ITEM, SM64AP_OBJECT_ITEM_PURPLE_SWITCHES, sUnlockPurple },
     { SM64AP_LEVEL_MOVE_AREA_BITS, PAUSE_COURSE_UNLOCK_BITS_PIPE, 0, sUnlockPipe },
     { SM64AP_LEVEL_MOVE_AREA_VCUTM, PAUSE_COURSE_UNLOCK_LEVEL_CAP, SM64AP_LEVEL_CAP_VCUTM_VANISH, sUnlockVanish },
@@ -2823,6 +2825,8 @@ static bool pause_course_unlock_collected(const struct PauseCourseUnlock *unlock
             return SM64AP_HaveWmotrCannon();
         case PAUSE_COURSE_UNLOCK_BITS_PIPE:
             return SM64AP_HaveBitsPipe();
+        case PAUSE_COURSE_UNLOCK_BITDW_PIPE:
+            return SM64AP_HaveBitdwPipe();
     }
 
     return false;

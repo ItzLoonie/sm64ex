@@ -93,14 +93,25 @@ extern "C" {
 
 // Cannonsanity: every cannon (course cannons, Castle Grounds, and WMotR) is its own check.
 #define SM64AP_LOCATIONID_CANNONSANITY_START (SM64AP_LOCATIONID_TOADSANITY_END + 1)
-#define SM64AP_NUM_CANNONSANITY_CHECKS 12
+#define SM64AP_NUM_CANNONSANITY_CHECKS 20
 #define SM64AP_LOCATIONID_CANNONSANITY_END (SM64AP_LOCATIONID_CANNONSANITY_START + SM64AP_NUM_CANNONSANITY_CHECKS - 1)
 
-#define SM64AP_NUM_LOCS (SM64AP_LOCATIONID_CANNONSANITY_END - SM64AP_ID_OFFSET + 1)
+// Chest Checks: each of the 12 treasure chests in Jolly Roger Bay (sunken ship + underwater
+// chest room) and Dire, Dire Docks is its own check.
+#define SM64AP_LOCATIONID_CHESTCHECKS_START (SM64AP_LOCATIONID_CANNONSANITY_END + 1)
+#define SM64AP_NUM_CHESTCHECKS_CHECKS 12
+#define SM64AP_LOCATIONID_CHESTCHECKS_END (SM64AP_LOCATIONID_CHESTCHECKS_START + SM64AP_NUM_CHESTCHECKS_CHECKS - 1)
+
+#define SM64AP_NUM_LOCS (SM64AP_LOCATIONID_CHESTCHECKS_END - SM64AP_ID_OFFSET + 1)
 
 // New item: unlocks the pipe in Bowser in the Sky that leads to the BitS Bowser fight.
 // Without this item, the pipe does not spawn at all.
 #define SM64AP_ID_BITS_PIPE (SM64AP_ID_OFFSET + 1770)
+#define SM64AP_ID_BITDW_PIPE (SM64AP_ID_OFFSET + 1771)
+
+// New item: an extra "Power Star" currency, separate from real course Stars, optionally
+// required (alongside SM64AP_ID_BITS_PIPE) to spawn the pipe in Bowser in the Sky.
+#define SM64AP_ID_POWER_STAR (SM64AP_ID_OFFSET + 1772)
 
 #define SM64AP_NUM_ABILITIES 11
 #define SM64AP_NUM_PAINTING_LOCKS 15
@@ -281,6 +292,16 @@ enum {
 #define SM64AP_ID_LEVEL_MOVE(area, move) (SM64AP_LEVEL_MOVE_OFFSET + ((area) * SM64AP_NUM_LEVEL_MOVES) + (move))
 #define SM64AP_ID_LEVEL_MOVE_END SM64AP_ID_LEVEL_MOVE(SM64AP_NUM_LEVEL_MOVE_AREAS - 1, SM64AP_NUM_LEVEL_MOVES - 1)
 
+// Progressive Wing/Metal/Vanish Cap duration boosts, and Progressive Swim speed boost.
+// Each is a stackable item ranged 0-5 in the item pool.
+#define SM64AP_ID_PROGRESSIVE_WING_CAP (SM64AP_ID_OFFSET + 565)
+#define SM64AP_ID_PROGRESSIVE_METAL_CAP (SM64AP_ID_OFFSET + 566)
+#define SM64AP_ID_PROGRESSIVE_VANISH_CAP (SM64AP_ID_OFFSET + 567)
+#define SM64AP_ID_PROGRESSIVE_SWIM (SM64AP_ID_OFFSET + 568)
+#define SM64AP_PROGRESSIVE_CAP_MAX 5
+#define SM64AP_PROGRESSIVE_SWIM_MAX 5
+#define SM64AP_PROGRESSIVE_CAP_SECONDS_PER_STACK 10
+
 enum {
     SM64AP_1UP_SOURCE_OBJECT,
     SM64AP_1UP_SOURCE_SLIDING,
@@ -340,8 +361,13 @@ AP_EXTERN_C bool SM64AP_CollectOneUp(int);
 AP_EXTERN_C void SM64AP_SendBlocksanityCheck(s16, s16, s32, s16, s16, s16);
 AP_EXTERN_C void SM64AP_SendSignsanityCheck(s16, s16, s32, s16, s16);
 AP_EXTERN_C void SM64AP_SendToadsanityCheck(s16, s16, s16, s16, s16);
-AP_EXTERN_C void SM64AP_SendCannonsanityCheck(s16, s16);
+AP_EXTERN_C void SM64AP_SendCannonsanityCheck(s16, s16, s16, s16, s16);
+AP_EXTERN_C void SM64AP_SendChestCheck(s16, s16, s16, s16, s16);
 AP_EXTERN_C bool SM64AP_HaveBitsPipe();
+AP_EXTERN_C bool SM64AP_HaveBitdwPipe();
+AP_EXTERN_C bool SM64AP_PowerStarsEnabled();
+AP_EXTERN_C int SM64AP_GetPowerStarCount();
+AP_EXTERN_C bool SM64AP_HaveEnoughPowerStars();
 AP_EXTERN_C bool SM64AP_ShouldSpawnBowserStageOneUp(s16, s16, u32);
 AP_EXTERN_C bool SM64AP_HaveKey1();
 AP_EXTERN_C bool SM64AP_HaveKey2();
@@ -401,6 +427,12 @@ AP_EXTERN_C bool SM64AP_CanGroundPound();
 AP_EXTERN_C bool SM64AP_CanKick();
 AP_EXTERN_C bool SM64AP_CanClimb();
 AP_EXTERN_C bool SM64AP_CanLedgeGrab();
+
+// Progressive items
+AP_EXTERN_C int SM64AP_GetProgressiveWingCapBonusFrames();
+AP_EXTERN_C int SM64AP_GetProgressiveMetalCapBonusFrames();
+AP_EXTERN_C int SM64AP_GetProgressiveVanishCapBonusFrames();
+AP_EXTERN_C float SM64AP_GetSwimSpeedMultiplier();
 
 // Send Item
 AP_EXTERN_C int SM64AP_BoxLocationId(int);

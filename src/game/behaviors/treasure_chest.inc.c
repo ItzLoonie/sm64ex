@@ -1,5 +1,7 @@
 // treasure_chest.c.inc
 
+#include "../../sm64ap.h"
+
 /**
  * Hitbox for treasure chest bottom.
  */
@@ -70,6 +72,8 @@ void bhv_treasure_chest_bottom_loop(void) {
                     if (!o->parentObj->oTreasureChestUnkF8) {
                         if (o->parentObj->oTreasureChestUnkF4 == o->oBehParams2ndByte) {
                             play_sound(SOUND_GENERAL2_RIGHT_ANSWER, gDefaultSoundArgs);
+                            SM64AP_SendChestCheck(gCurrLevelNum, gCurrAreaIndex,
+                                                   (s16) o->oPosX, (s16) o->oPosY, (s16) o->oPosZ);
                             o->parentObj->oTreasureChestUnkF4++;
                             o->oAction = 1;
                         } else {

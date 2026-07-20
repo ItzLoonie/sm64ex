@@ -18,6 +18,8 @@
 #include "thread6.h"
 
 #define MIN_SWIM_STRENGTH 160
+#include "sm64ap.h"
+
 #define MIN_SWIM_SPEED 16.0f
 
 static s16 sWasAtSurface = FALSE;
@@ -229,7 +231,7 @@ static void stationary_slow_down(struct MarioState *m) {
 
 static void update_swimming_speed(struct MarioState *m, f32 decelThreshold) {
     f32 buoyancy = get_buoyancy(m);
-    f32 maxSpeed = 28.0f;
+    f32 maxSpeed = 28.0f * SM64AP_GetSwimSpeedMultiplier();
 
     if (m->action & ACT_FLAG_STATIONARY) {
         m->forwardVel -= 2.0f;
