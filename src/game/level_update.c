@@ -163,6 +163,7 @@ struct HudDisplay gHudDisplay;
 s16 sCurrPlayMode;
 u16 D_80339ECA;
 s16 sTransitionTimer;
+u8 gPauseExitCourseSkipDoneScreen = FALSE;
 void (*sTransitionUpdate)(s16 *);
 struct WarpDest sWarpDest;
 s16 D_80339EE0;
@@ -1114,6 +1115,10 @@ s32 play_mode_normal(void) {
 }
 
 s32 play_mode_paused(void) {
+    struct ObjectWarpNode *warpNode;
+    s32 previousDelayedWarpOp;
+    u8 exitWarpNodeId;
+
     if (gPauseScreenMode == 0) {
         set_menu_mode(RENDER_PAUSE_SCREEN);
     } else if (gPauseScreenMode == 1) {
@@ -1128,6 +1133,35 @@ s32 play_mode_paused(void) {
             initiate_warp(LEVEL_CASTLE, 1, 0x1F, 0);
             fade_into_special_warp(0, 0);
             gSavedCourseNum = COURSE_NONE;
+        }
+    } else if (gPauseScreenMode == 4) {
+        // Exit course to its entrance instead of the castle lobby.
+        if (gDebugLevelSelect) {
+            fade_into_special_warp(-9, 1);
+        } else {
+            exitWarpNodeId = WARP_NODE_F0;
+            warpNode = area_get_warp_node(exitWarpNodeId);
+            if (warpNode == NULL) {
+                exitWarpNodeId = WARP_NODE_DEATH;
+                warpNode = area_get_warp_node(exitWarpNodeId);
+            }
+            if (warpNode != NULL) {
+                previousDelayedWarpOp = sDelayedWarpOp;
+                gPauseExitCourseSkipDoneScreen = TRUE;
+                sDelayedWarpOp = WARP_OP_STAR_EXIT;
+                // The F1 node supplies a destination for stages without F0, but this is still a
+                // course exit rather than a death warp. Area rando uses the source ID to distinguish them.
+                sSourceWarpNodeId = WARP_NODE_F0;
+                initiate_warp(warpNode->node.destLevel & 0x7F, warpNode->node.destArea,
+                              warpNode->node.destNode, 0);
+                sDelayedWarpOp = previousDelayedWarpOp;
+                fade_into_special_warp(0, 0);
+                gSavedCourseNum = COURSE_NONE;
+            } else {
+                initiate_warp(LEVEL_CASTLE, 1, 0x1F, 0);
+                fade_into_special_warp(0, 0);
+                gSavedCourseNum = COURSE_NONE;
+            }
         }
     } else if (gPauseScreenMode == 3) {
         // We should only be getting "int 3" to here
