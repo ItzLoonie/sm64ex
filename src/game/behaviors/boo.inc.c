@@ -447,6 +447,12 @@ static void boo_act_2(void) {
 static void boo_act_3(void) {
     if (boo_update_during_death()) {
         if (o->oBehParams2ndByte != 0) {
+            // oHomeX/Y/Z is this boo's own spawn position (set once via SET_HOME() before it
+            // starts wandering), not its current position. SM64AP_SendCourtyardBooCheck() only
+            // recognizes the 9 known Castle Courtyard triplet-boo spawn positions and silently
+            // no-ops for anything else (e.g. ordinary bhvBoo enemies elsewhere, which share this
+            // same code path), so no additional level/behavior gating is needed here.
+            SM64AP_SendCourtyardBooCheck((s16) o->oHomeX, (s16) o->oHomeY, (s16) o->oHomeZ);
             obj_mark_for_deletion(o);
         } else {
             o->oAction = 4;

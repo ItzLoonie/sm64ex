@@ -294,6 +294,9 @@ void render_hud_coins(void) {
 /**
  * Renders the amount of stars collected.
  * Disables "X" glyph when Mario has 100 stars or more.
+ *
+ * Drawn at the Lives Counter's former top-left position (see render_hud_mario_lives(), now
+ * disabled) instead of the top-right position it used to share with the Coin Counter.
  */
 void render_hud_stars(void) {
     s8 showX = 0;
@@ -306,11 +309,11 @@ void render_hud_stars(void) {
         showX = 1;
     }
 
-    print_text(GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(HUD_TOP_RIGHT_COUNTER_X), HUD_TOP_Y, "-"); // 'Star' glyph
+    print_text(GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(22), HUD_TOP_Y, "-"); // 'Star' glyph
     if (showX == 1) {
-        print_text(GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(HUD_TOP_RIGHT_COUNTER_X) + 16, HUD_TOP_Y, "*"); // 'X' glyph
+        print_text(GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(38), HUD_TOP_Y, "*"); // 'X' glyph
     }
-    print_text_fmt_int((showX * 14) + GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(HUD_TOP_RIGHT_COUNTER_X - 16),
+    print_text_fmt_int(GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(showX ? 54 : 38),
                        HUD_TOP_Y, "%d", gHudDisplay.stars);
 }
 
@@ -471,9 +474,9 @@ void render_hud(void) {
             render_hud_cannon_reticle();
         }
 
-        if (hudDisplayFlags & HUD_DISPLAY_FLAG_LIVES && configHUD) {
-            render_hud_mario_lives();
-        }
+        // The Lives Counter is disabled: the Star Counter has been moved to its former
+        // position (top-left) since it used to overlap the Coin Counter (both rendered at
+        // the same top-right position). See render_hud_stars().
 
         if (hudDisplayFlags & HUD_DISPLAY_FLAG_COIN_COUNT && configHUD) {
             render_hud_coins();

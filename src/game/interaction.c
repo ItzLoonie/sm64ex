@@ -1599,6 +1599,11 @@ u32 interact_pole(struct MarioState *m, UNUSED u32 interactType, struct Object *
             m->vel[1] = 0.0f;
             m->forwardVel = 0.0f;
 
+            if (o->behavior == bhvTree) {
+                SM64AP_SendTreesanityCheck(gCurrLevelNum, gCurrAreaIndex,
+                                           (s16) o->oPosX, (s16) o->oPosY, (s16) o->oPosZ);
+            }
+
             marioObj->oMarioPoleUnk108 = 0;
             marioObj->oMarioPoleYawVel = 0;
             marioObj->oMarioPolePos = m->pos[1] - o->oPosY;

@@ -2613,6 +2613,7 @@ static const u8 sUnlockPeng[] = { TEXT_UNLOCK_PENG };
 static const u8 sUnlockPipes[] = { TEXT_UNLOCK_PIPES };
 static const u8 sUnlockPipe[] = { TEXT_UNLOCK_PIPE };
 static const u8 sUnlockPoles[] = { TEXT_UNLOCK_POLES };
+static const u8 sUnlockPowerStar[] = { TEXT_UNLOCK_POWER_STAR };
 static const u8 sUnlockPurple[] = { TEXT_UNLOCK_PURPLE };
 static const u8 sUnlockRaised[] = { TEXT_UNLOCK_RAISED };
 static const u8 sUnlockShell[] = { TEXT_UNLOCK_SHELL };
@@ -2900,6 +2901,21 @@ static void render_pause_coin_star_requirement(s16 x, s16 y, s16 valueX, s16 cou
     print_generic_string(valueX - (digitCount - 1) * 8, y, strCoinRequirement);
 }
 
+// Mirrors render_pause_coin_star_requirement() above, but for Bowser in the Sky's Power Star
+// requirement (only relevant, and only ever shown, when Power Stars are enabled).
+static void render_pause_power_star_requirement(s16 x, s16 y, s16 valueX) {
+    u8 strPowerStarRequirement[4];
+    s16 digitCount = 0;
+
+    int_to_str(SM64AP_GetRequiredPowerStars(), strPowerStarRequirement);
+    while (strPowerStarRequirement[digitCount] != DIALOG_CHAR_TERMINATOR) {
+        digitCount++;
+    }
+
+    print_generic_string(x, y, sUnlockPowerStar);
+    print_generic_string(valueX - (digitCount - 1) * 8, y, strPowerStarRequirement);
+}
+
 static s16 pause_unlock_view_count(void) {
     return sizeof(sPauseUnlockViews) / sizeof(sPauseUnlockViews[0]);
 }
@@ -2942,6 +2958,9 @@ static void render_pause_area_unlocks(s16 x, s16 y, const struct PauseUnlockView
 
     if (view->type == PAUSE_UNLOCK_VIEW_COURSE) {
         render_pause_coin_star_requirement(x, y, x + 170, view->courseNum);
+        y -= 11;
+    } else if (view->courseNum == COURSE_BITS - 1 && SM64AP_PowerStarsEnabled()) {
+        render_pause_power_star_requirement(x, y, x + 170);
         y -= 11;
     }
 

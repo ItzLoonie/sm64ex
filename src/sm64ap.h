@@ -91,16 +91,29 @@ extern "C" {
 #define SM64AP_NUM_TOADSANITY_CHECKS 5
 #define SM64AP_LOCATIONID_TOADSANITY_END (SM64AP_LOCATIONID_TOADSANITY_START + SM64AP_NUM_TOADSANITY_CHECKS - 1)
 
-// Cannonsanity: every cannon (course cannons, Castle Grounds, and WMotR) is its own check.
-#define SM64AP_LOCATIONID_CANNONSANITY_START (SM64AP_LOCATIONID_TOADSANITY_END + 1)
-#define SM64AP_NUM_CANNONSANITY_CHECKS 20
-#define SM64AP_LOCATIONID_CANNONSANITY_END (SM64AP_LOCATIONID_CANNONSANITY_START + SM64AP_NUM_CANNONSANITY_CHECKS - 1)
+// Cannonsanity (Cannon Checks) has been removed. Its old id range is reserved, rather than
+// reused, so ChestChecks and every range after it keep their existing absolute location ids.
+#define SM64AP_LOCATIONID_CANNONSANITY_RESERVED_START (SM64AP_LOCATIONID_TOADSANITY_END + 1)
+#define SM64AP_NUM_CANNONSANITY_RESERVED_IDS 20
+#define SM64AP_LOCATIONID_CANNONSANITY_RESERVED_END (SM64AP_LOCATIONID_CANNONSANITY_RESERVED_START + SM64AP_NUM_CANNONSANITY_RESERVED_IDS - 1)
 
 // Chest Checks: each of the 12 treasure chests in Jolly Roger Bay (sunken ship + underwater
 // chest room) and Dire, Dire Docks is its own check.
-#define SM64AP_LOCATIONID_CHESTCHECKS_START (SM64AP_LOCATIONID_CANNONSANITY_END + 1)
+#define SM64AP_LOCATIONID_CHESTCHECKS_START (SM64AP_LOCATIONID_CANNONSANITY_RESERVED_END + 1)
 #define SM64AP_NUM_CHESTCHECKS_CHECKS 12
 #define SM64AP_LOCATIONID_CHESTCHECKS_END (SM64AP_LOCATIONID_CHESTCHECKS_START + SM64AP_NUM_CHESTCHECKS_CHECKS - 1)
+
+// Treesanity: every individual tree object (bhvTree, grabbed as a pole) is its own check.
+#define SM64AP_LOCATIONID_TREESANITY_START (SM64AP_LOCATIONID_CHESTCHECKS_END + 1)
+#define SM64AP_NUM_TREESANITY_CHECKS 87
+#define SM64AP_LOCATIONID_TREESANITY_END (SM64AP_LOCATIONID_TREESANITY_START + SM64AP_NUM_TREESANITY_CHECKS - 1)
+
+// Courtyard Boo Checks: each of the 9 Boos spawned by the 3 Boo Triplets in the Castle
+// Courtyard (i.e. excluding the caged Boo that guards the Big Boo's Haunt entrance, which is a
+// separate, singular bhvBooWithCage object) is its own check.
+#define SM64AP_LOCATIONID_COURTYARD_BOO_CHECKS_START (SM64AP_LOCATIONID_TREESANITY_END + 1)
+#define SM64AP_NUM_COURTYARD_BOO_CHECKS 9
+#define SM64AP_LOCATIONID_COURTYARD_BOO_CHECKS_END (SM64AP_LOCATIONID_COURTYARD_BOO_CHECKS_START + SM64AP_NUM_COURTYARD_BOO_CHECKS - 1)
 
 #define SM64AP_NUM_LOCS (SM64AP_LOCATIONID_CHESTCHECKS_END - SM64AP_ID_OFFSET + 1)
 
@@ -292,14 +305,12 @@ enum {
 #define SM64AP_ID_LEVEL_MOVE(area, move) (SM64AP_LEVEL_MOVE_OFFSET + ((area) * SM64AP_NUM_LEVEL_MOVES) + (move))
 #define SM64AP_ID_LEVEL_MOVE_END SM64AP_ID_LEVEL_MOVE(SM64AP_NUM_LEVEL_MOVE_AREAS - 1, SM64AP_NUM_LEVEL_MOVES - 1)
 
-// Progressive Wing/Metal/Vanish Cap duration boosts, and Progressive Swim speed boost.
-// Each is a stackable item ranged 0-5 in the item pool.
+// Progressive Wing/Metal/Vanish Cap duration boosts. Each is a stackable item ranged 0-5 in
+// the item pool. (Progressive Swim, formerly id 568, has been removed; that id is retired.)
 #define SM64AP_ID_PROGRESSIVE_WING_CAP (SM64AP_ID_OFFSET + 565)
 #define SM64AP_ID_PROGRESSIVE_METAL_CAP (SM64AP_ID_OFFSET + 566)
 #define SM64AP_ID_PROGRESSIVE_VANISH_CAP (SM64AP_ID_OFFSET + 567)
-#define SM64AP_ID_PROGRESSIVE_SWIM (SM64AP_ID_OFFSET + 568)
 #define SM64AP_PROGRESSIVE_CAP_MAX 5
-#define SM64AP_PROGRESSIVE_SWIM_MAX 5
 #define SM64AP_PROGRESSIVE_CAP_SECONDS_PER_STACK 10
 
 enum {
@@ -361,12 +372,14 @@ AP_EXTERN_C bool SM64AP_CollectOneUp(int);
 AP_EXTERN_C void SM64AP_SendBlocksanityCheck(s16, s16, s32, s16, s16, s16);
 AP_EXTERN_C void SM64AP_SendSignsanityCheck(s16, s16, s32, s16, s16);
 AP_EXTERN_C void SM64AP_SendToadsanityCheck(s16, s16, s16, s16, s16);
-AP_EXTERN_C void SM64AP_SendCannonsanityCheck(s16, s16, s16, s16, s16);
 AP_EXTERN_C void SM64AP_SendChestCheck(s16, s16, s16, s16, s16);
+AP_EXTERN_C void SM64AP_SendTreesanityCheck(s16, s16, s16, s16, s16);
+AP_EXTERN_C void SM64AP_SendCourtyardBooCheck(s16, s16, s16);
 AP_EXTERN_C bool SM64AP_HaveBitsPipe();
 AP_EXTERN_C bool SM64AP_HaveBitdwPipe();
 AP_EXTERN_C bool SM64AP_PowerStarsEnabled();
 AP_EXTERN_C int SM64AP_GetPowerStarCount();
+AP_EXTERN_C int SM64AP_GetRequiredPowerStars();
 AP_EXTERN_C bool SM64AP_HaveEnoughPowerStars();
 AP_EXTERN_C bool SM64AP_ShouldSpawnBowserStageOneUp(s16, s16, u32);
 AP_EXTERN_C bool SM64AP_HaveKey1();
@@ -432,7 +445,6 @@ AP_EXTERN_C bool SM64AP_CanLedgeGrab();
 AP_EXTERN_C int SM64AP_GetProgressiveWingCapBonusFrames();
 AP_EXTERN_C int SM64AP_GetProgressiveMetalCapBonusFrames();
 AP_EXTERN_C int SM64AP_GetProgressiveVanishCapBonusFrames();
-AP_EXTERN_C float SM64AP_GetSwimSpeedMultiplier();
 
 // Send Item
 AP_EXTERN_C int SM64AP_BoxLocationId(int);

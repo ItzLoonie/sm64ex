@@ -86,7 +86,6 @@ bool sm64_have_vanishcap = false;
 int sm64_progressive_wing_cap_count = 0;
 int sm64_progressive_metal_cap_count = 0;
 int sm64_progressive_vanish_cap_count = 0;
-int sm64_progressive_swim_count = 0;
 bool sm64_show_global_cap_display = false;
 int sm64_moat_state = 0;
 bool sm64_have_cannon[15];
@@ -104,8 +103,9 @@ std::bitset<SM64AP_NUM_1UP_CHECKS> sm64_sent_1up_checks;
 std::bitset<SM64AP_NUM_BLOCKSANITY_CHECKS> sm64_sent_blocksanity_checks;
 std::bitset<SM64AP_NUM_SIGNSANITY_CHECKS> sm64_sent_signsanity_checks;
 std::bitset<SM64AP_NUM_TOADSANITY_CHECKS> sm64_sent_toadsanity_checks;
-std::bitset<SM64AP_NUM_CANNONSANITY_CHECKS> sm64_sent_cannonsanity_checks;
 std::bitset<SM64AP_NUM_CHESTCHECKS_CHECKS> sm64_sent_chest_checks;
+std::bitset<SM64AP_NUM_TREESANITY_CHECKS> sm64_sent_treesanity_checks;
+std::bitset<SM64AP_NUM_COURTYARD_BOO_CHECKS> sm64_sent_courtyard_boo_checks;
 std::set<int> sm64_sent_box_checks;
 int* sm64_clockaction = nullptr;
 int sm64_cost_firstbowserdoor = 8;
@@ -422,64 +422,6 @@ static_assert(sizeof(SM64AP_TOADSANITY_SOURCES) / sizeof(SM64AP_TOADSANITY_SOURC
               == SM64AP_NUM_TOADSANITY_CHECKS,
               "Toadsanity source count must match location count");
 
-// Cannonsanity: one check per individual cannon *object* (the entry point Mario dives/walks
-// into), not one per course -- several courses have more than one bhvCannonClosed door that all
-// respond to the same course-wide unlock flag (see save_file_is_cannon_unlocked()), and each is
-// independently reachable/enterable. Position data pulled directly from each level's
-// areas/1/macro.inc.c (macro_cannon_closed / macro_cannon_open placements); the "closed" door
-// objects copy their own placement position onto the real cannon they spawn on open
-// (see bhv_cannon_closed_init() in cannon_door.inc.c), so the entered cannon's own position at
-// runtime always matches the values below.
-struct SM64APCannonsanitySource {
-    s16 level;
-    s16 area;
-    s16 x;
-    s16 y;
-    s16 z;
-};
-
-static constexpr SM64APCannonsanitySource SM64AP_CANNONSANITY_SOURCES[SM64AP_NUM_CANNONSANITY_CHECKS] = {
-    // Bob-omb Battlefield (6 cannons: 5 from areas/1/macro.inc.c, plus a 6th placed directly
-    // in script.c that shares its position with the ACT_1-only water bomb cannon -- that spot
-    // is an enemy cannon during the King Bob-omb mission and the real player cannon for every
-    // other act)
-    { LEVEL_BOB, 1, -5018, 1332, -3533 },
-    { LEVEL_BOB, 1, 6349, 2080, -7066 },
-    { LEVEL_BOB, 1, 4243, 3071, -2451 },
-    { LEVEL_BOB, 1, 4352, 3072, 1229 },
-    { LEVEL_BOB, 1, 5376, 1537, 4610 },
-    { LEVEL_BOB, 1, -5694, 128, 5600 },
-    // Whomp's Fortress
-    { LEVEL_WF, 1, -1844, 1026, 3893 },
-    // Jolly Roger Bay
-    { LEVEL_JRB, 1, -4235, 1247, 2137 },
-    // Cool, Cool Mountain (3 cannons)
-    { LEVEL_CCM, 1, -3615, -4607, 4790 },
-    { LEVEL_CCM, 1, -5045, -1740, 4615 },
-    { LEVEL_CCM, 1, 1090, -4607, 5729 },
-    // Shifting Sand Land
-    { LEVEL_SSL, 1, 6863, 0, -6860 },
-    // Snowman's Land
-    { LEVEL_SL, 1, 4483, 821, 1168 },
-    // Wet-Dry World
-    { LEVEL_WDW, 1, -2688, 3328, 3198 },
-    // Tall, Tall Mountain
-    { LEVEL_TTM, 1, 5035, -3994, -3445 },
-    // Tiny-Huge Island
-    { LEVEL_THI, 1, 6656, -2832, 6964 },
-    // Rainbow Ride
-    { LEVEL_RR, 1, 5545, 3333, -2345 },
-    // Wing Mario over the Rainbow (2 cannons)
-    { LEVEL_WMOTR, 1, -4456, 827, 191 },
-    { LEVEL_WMOTR, 1, 3712, -2740, 5200 },
-    // Castle Grounds (always open, no Bob-omb Buddy)
-    { LEVEL_CASTLE_GROUNDS, 1, 2384, 70, 1961 },
-};
-
-static_assert(sizeof(SM64AP_CANNONSANITY_SOURCES) / sizeof(SM64AP_CANNONSANITY_SOURCES[0])
-              == SM64AP_NUM_CANNONSANITY_CHECKS,
-              "Cannonsanity source count must match location count");
-
 struct SM64APChestCheckSource {
     s16 level;
     s16 area;
@@ -513,6 +455,159 @@ static constexpr SM64APChestCheckSource SM64AP_CHESTCHECKS_SOURCES[SM64AP_NUM_CH
 static_assert(sizeof(SM64AP_CHESTCHECKS_SOURCES) / sizeof(SM64AP_CHESTCHECKS_SOURCES[0])
               == SM64AP_NUM_CHESTCHECKS_CHECKS,
               "Chest check source count must match location count");
+
+struct SM64APTreesanitySource {
+    s16 level;
+    s16 area;
+    s16 x;
+    s16 y;
+    s16 z;
+};
+
+// Every individual tree object (bhvTree, special preset ids 0x79-0x7D in special_presets.h).
+// Trees are spawned via spawn_special_objects() -> spawn_macro_abs_yrot_2params(), which places
+// them at the exact absolute x/y/z given in each level's areas/N/collision.inc.c SPECIAL_OBJECT()
+// entry with no additional offset or rotation -- so those literal placement coordinates are also
+// each tree's runtime oPosX/Y/Z, used here for identification. Order here is arbitrary but must
+// line up 1:1 with SM64AP_LOCATIONID_TREESANITY_START + index.
+static constexpr SM64APTreesanitySource SM64AP_TREESANITY_SOURCES[SM64AP_NUM_TREESANITY_CHECKS] = {
+    // Castle Grounds (26 bubbly trees)
+    { LEVEL_CASTLE_GROUNDS, 1, -1333, 711, 1881 },
+    { LEVEL_CASTLE_GROUNDS, 1, -6220, 468, 3458 },
+    { LEVEL_CASTLE_GROUNDS, 1, -5069, 350, 3221 },
+    { LEVEL_CASTLE_GROUNDS, 1, -2566, 438, 2626 },
+    { LEVEL_CASTLE_GROUNDS, 1, -1900, 401, 2868 },
+    { LEVEL_CASTLE_GROUNDS, 1, 6399, 494, -1680 },
+    { LEVEL_CASTLE_GROUNDS, 1, 767, 498, 2598 },
+    { LEVEL_CASTLE_GROUNDS, 1, 1476, 189, 3280 },
+    { LEVEL_CASTLE_GROUNDS, 1, 3153, 206, 469 },
+    { LEVEL_CASTLE_GROUNDS, 1, 6178, 219, 167 },
+    { LEVEL_CASTLE_GROUNDS, 1, -6510, 260, 1411 },
+    { LEVEL_CASTLE_GROUNDS, 1, 5457, 528, -3259 },
+    { LEVEL_CASTLE_GROUNDS, 1, 5868, 698, -4453 },
+    { LEVEL_CASTLE_GROUNDS, 1, 6408, 869, -5314 },
+    { LEVEL_CASTLE_GROUNDS, 1, -4711, 342, 433 },
+    { LEVEL_CASTLE_GROUNDS, 1, 1132, 365, 1977 },
+    { LEVEL_CASTLE_GROUNDS, 1, -5506, 364, -661 },
+    { LEVEL_CASTLE_GROUNDS, 1, -6269, 402, -2145 },
+    { LEVEL_CASTLE_GROUNDS, 1, -5600, 440, -2627 },
+    { LEVEL_CASTLE_GROUNDS, 1, 1919, 268, 1157 },
+    { LEVEL_CASTLE_GROUNDS, 1, -5957, 517, -3447 },
+    { LEVEL_CASTLE_GROUNDS, 1, -2021, 633, 1468 },
+    { LEVEL_CASTLE_GROUNDS, 1, -109, 613, 3008 },
+    { LEVEL_CASTLE_GROUNDS, 1, 5774, 413, -1114 },
+    { LEVEL_CASTLE_GROUNDS, 1, 5954, 526, -2846 },
+    { LEVEL_CASTLE_GROUNDS, 1, -5204, 296, 811 },
+    // Castle Courtyard (16 spiky trees)
+    { LEVEL_CASTLE_COURTYARD, 1, 2272, -214, -1432 },
+    { LEVEL_CASTLE_COURTYARD, 1, 818, 10, 203 },
+    { LEVEL_CASTLE_COURTYARD, 1, -820, 10, 201 },
+    { LEVEL_CASTLE_COURTYARD, 1, 1681, -214, -132 },
+    { LEVEL_CASTLE_COURTYARD, 1, 2382, -214, -843 },
+    { LEVEL_CASTLE_COURTYARD, 1, -817, 10, -3630 },
+    { LEVEL_CASTLE_COURTYARD, 1, 2769, -214, -1523 },
+    { LEVEL_CASTLE_COURTYARD, 1, 2444, -214, -2330 },
+    { LEVEL_CASTLE_COURTYARD, 1, 2042, -214, -3032 },
+    { LEVEL_CASTLE_COURTYARD, 1, 824, 10, -3633 },
+    { LEVEL_CASTLE_COURTYARD, 1, -2537, -214, -759 },
+    { LEVEL_CASTLE_COURTYARD, 1, -1640, -214, -3228 },
+    { LEVEL_CASTLE_COURTYARD, 1, -2732, -214, -2166 },
+    { LEVEL_CASTLE_COURTYARD, 1, -2446, -214, -1786 },
+    { LEVEL_CASTLE_COURTYARD, 1, -2820, -214, -1317 },
+    { LEVEL_CASTLE_COURTYARD, 1, -1868, -214, -45 },
+    // Snowman's Land (9 snow trees)
+    { LEVEL_SL, 1, 5395, 1054, -5443 },
+    { LEVEL_SL, 1, 0, 4864, 0 },
+    { LEVEL_SL, 1, 5666, 1024, -3341 },
+    { LEVEL_SL, 1, 1919, 1024, -4759 },
+    { LEVEL_SL, 1, 3645, 1024, -5889 },
+    { LEVEL_SL, 1, 1658, 1536, -3605 },
+    { LEVEL_SL, 1, -3769, 1024, -1197 },
+    { LEVEL_SL, 1, -2745, 1024, -582 },
+    { LEVEL_SL, 1, 1766, 2816, -942 },
+    // Cool, Cool Mountain (13 snow trees)
+    { LEVEL_CCM, 1, -5201, -1740, 2994 },
+    { LEVEL_CCM, 1, 1989, -4607, 4949 },
+    { LEVEL_CCM, 1, 1248, -4607, 5474 },
+    { LEVEL_CCM, 1, -5508, -1740, 4148 },
+    { LEVEL_CCM, 1, -4576, -1740, 4814 },
+    { LEVEL_CCM, 1, -488, 2560, -2305 },
+    { LEVEL_CCM, 1, -5892, -1740, 811 },
+    { LEVEL_CCM, 1, -3748, -4607, 4464 },
+    { LEVEL_CCM, 1, 2237, 2560, -1630 },
+    { LEVEL_CCM, 1, 2885, 2560, -1638 },
+    { LEVEL_CCM, 1, -1146, -3583, 5919 },
+    { LEVEL_CCM, 1, -1768, 2560, -1793 },
+    { LEVEL_CCM, 1, -3443, 807, -2713 },
+    // Bob-omb Battlefield (17 bubbly trees)
+    { LEVEL_BOB, 1, -5792, 1024, -4654 },
+    { LEVEL_BOB, 1, -1509, 144, 5094 },
+    { LEVEL_BOB, 1, -4095, 768, 3072 },
+    { LEVEL_BOB, 1, -5119, 768, 2048 },
+    { LEVEL_BOB, 1, 5444, 863, 6016 },
+    { LEVEL_BOB, 1, -6655, 768, 3584 },
+    { LEVEL_BOB, 1, -6130, 900, -6507 },
+    { LEVEL_BOB, 1, -6804, 1024, -4866 },
+    { LEVEL_BOB, 1, 6033, 2194, -7660 },
+    { LEVEL_BOB, 1, -4095, 768, 1536 },
+    { LEVEL_BOB, 1, -4268, 0, 4768 },
+    { LEVEL_BOB, 1, -3583, 768, 2560 },
+    { LEVEL_BOB, 1, -6172, 1024, -430 },
+    { LEVEL_BOB, 1, 4096, 3072, 1638 },
+    { LEVEL_BOB, 1, 6799, 2008, -5587 },
+    { LEVEL_BOB, 1, 2911, 768, 5917 },
+    { LEVEL_BOB, 1, 4208, 927, 3772 },
+    // Wet-Dry World, area 2 (2 bubbly trees)
+    { LEVEL_WDW, 2, 1664, -2457, -946 },
+    { LEVEL_WDW, 2, 1664, -2457, -1637 },
+    // Whomp's Fortress (1 bubbly tree)
+    { LEVEL_WF, 1, 2560, 256, 4608 },
+    // Shifting Sand Land (1 palm tree)
+    { LEVEL_SSL, 1, -5989, 0, -4850 },
+    // Tiny-Huge Island, Huge area (1 bubbly tree)
+    { LEVEL_THI, 1, 4813, -511, 2254 },
+    // Tiny-Huge Island, Tiny area (1 bubbly tree)
+    { LEVEL_THI, 2, 1444, -153, 676 },
+};
+
+static_assert(sizeof(SM64AP_TREESANITY_SOURCES) / sizeof(SM64AP_TREESANITY_SOURCES[0])
+              == SM64AP_NUM_TREESANITY_CHECKS,
+              "Treesanity source count must match location count");
+
+struct SM64APCourtyardBooSource {
+    s16 x;
+    s16 y;
+    s16 z;
+};
+
+// The 3 Castle Courtyard bhvCourtyardBooTriplet objects (see script_func_local_2 in
+// levels/castle_courtyard/script.c) each spawn 3 bhvGhostHuntBoo children via
+// spawn_object_relative() at the fixed relative offsets in sCourtyardBooTripletPositions
+// (boo.inc.c). All 3 triplet parents are placed with angle (0,0,0), so spawn_object_relative's
+// relative transform applies no rotation and each child's oHomeX/Y/Z (captured by SET_HOME() at
+// spawn, before it starts wandering) is simply the parent's placement position plus that fixed
+// offset. This deliberately excludes the singular bhvBooWithCage object that guards the Big
+// Boo's Haunt entrance (a different, non-triplet behavior placed directly in the level's base
+// AREA() block). Order here is arbitrary but must line up 1:1 with
+// SM64AP_LOCATIONID_COURTYARD_BOO_CHECKS_START + index.
+static constexpr SM64APCourtyardBooSource SM64AP_COURTYARD_BOO_SOURCES[SM64AP_NUM_COURTYARD_BOO_CHECKS] = {
+    // Triplet at (-3217, 100, -101)
+    { -3217, 150, -101 },
+    { -3007, 210, 109 },
+    { -3427, 170, -311 },
+    // Triplet at (3317, 100, -1701)
+    { 3317, 150, -1701 },
+    { 3527, 210, -1491 },
+    { 3107, 170, -1911 },
+    // Triplet at (-71, 1, -1387)
+    { -71, 51, -1387 },
+    { 139, 111, -1177 },
+    { -281, 71, -1597 },
+};
+
+static_assert(sizeof(SM64AP_COURTYARD_BOO_SOURCES) / sizeof(SM64AP_COURTYARD_BOO_SOURCES[0])
+              == SM64AP_NUM_COURTYARD_BOO_CHECKS,
+              "Courtyard Boo check source count must match location count");
 
 struct SM64APOneUpSource {
     s16 level;
@@ -776,9 +871,6 @@ void SM64AP_RecvItem(int64_t idx, bool notify) {
             break;
         case SM64AP_ID_PROGRESSIVE_VANISH_CAP:
             SM64AP_IncrementClamped(sm64_progressive_vanish_cap_count, SM64AP_PROGRESSIVE_CAP_MAX);
-            break;
-        case SM64AP_ID_PROGRESSIVE_SWIM:
-            SM64AP_IncrementClamped(sm64_progressive_swim_count, SM64AP_PROGRESSIVE_SWIM_MAX);
             break;
         case SM64AP_ITEMID_1UP:
             gMarioState->numLives++;
@@ -2111,7 +2203,9 @@ void SM64AP_ResetItems() {
     sm64_sent_blocksanity_checks.reset();
     sm64_sent_signsanity_checks.reset();
     sm64_sent_toadsanity_checks.reset();
-    sm64_sent_cannonsanity_checks.reset();
+    sm64_sent_chest_checks.reset();
+    sm64_sent_treesanity_checks.reset();
+    sm64_sent_courtyard_boo_checks.reset();
     sm64_sent_box_checks.clear();
     sm64_have_first_floor_key = false;
     sm64_have_progressive_basement_keys = 0;
@@ -2146,7 +2240,6 @@ void SM64AP_ResetItems() {
     sm64_progressive_wing_cap_count = 0;
     sm64_progressive_metal_cap_count = 0;
     sm64_progressive_vanish_cap_count = 0;
-    sm64_progressive_swim_count = 0;
     starsCollected = 0;
 
     AP_SetServerDataRequest moat_request;
@@ -2446,6 +2539,10 @@ int SM64AP_GetPowerStarCount() {
     return sm64_power_star_count;
 }
 
+int SM64AP_GetRequiredPowerStars() {
+    return sm64_required_power_stars;
+}
+
 bool SM64AP_HaveEnoughPowerStars() {
     if (!sm64_power_stars_enabled) {
         return true;
@@ -2682,49 +2779,6 @@ void SM64AP_SendToadsanityCheck(s16 level, s16 area, s16 x, s16 y, s16 z) {
     SM64AP_SendItem(locId);
 }
 
-static int SM64AP_CannonsanityOffsetFromLocationId(int locId) {
-    int offset = locId - SM64AP_LOCATIONID_CANNONSANITY_START;
-
-    if (offset < 0 || offset >= SM64AP_NUM_CANNONSANITY_CHECKS) {
-        return -1;
-    }
-
-    return offset;
-}
-
-static int SM64AP_ResolveCannonsanityLocation(s16 level, s16 area, s16 x, s16 y, s16 z) {
-    for (int i = 0; i < SM64AP_NUM_CANNONSANITY_CHECKS; i++) {
-        const SM64APCannonsanitySource &source = SM64AP_CANNONSANITY_SOURCES[i];
-        if (source.level == level
-            && source.area == area
-            && source.x == x
-            && source.y == y
-            && source.z == z) {
-            return SM64AP_LOCATIONID_CANNONSANITY_START + i;
-        }
-    }
-
-    return 0;
-}
-
-// level/area should be gCurrLevelNum/gCurrAreaIndex; x/y/z should be the entered cannon
-// object's own position (m->usedObj->oPos{X,Y,Z}), which (for cannons unlocked via a
-// bhvCannonClosed door) is copied from that door's own placement position on open.
-void SM64AP_SendCannonsanityCheck(s16 level, s16 area, s16 x, s16 y, s16 z) {
-    if (!SM64AP_CanReportProgress()) {
-        return;
-    }
-
-    int locId = SM64AP_ResolveCannonsanityLocation(level, area, x, y, z);
-    int offset = SM64AP_CannonsanityOffsetFromLocationId(locId);
-    if (offset < 0 || sm64_sent_cannonsanity_checks[offset] || SM64AP_CheckedLoc(locId)) {
-        return;
-    }
-
-    sm64_sent_cannonsanity_checks[offset] = true;
-    SM64AP_SendItem(locId);
-}
-
 static int SM64AP_ChestCheckOffsetFromLocationId(int locId) {
     int offset = locId - SM64AP_LOCATIONID_CHESTCHECKS_START;
 
@@ -2762,6 +2816,88 @@ void SM64AP_SendChestCheck(s16 level, s16 area, s16 x, s16 y, s16 z) {
     }
 
     sm64_sent_chest_checks[offset] = true;
+    SM64AP_SendItem(locId);
+}
+
+static int SM64AP_TreesanityOffsetFromLocationId(int locId) {
+    int offset = locId - SM64AP_LOCATIONID_TREESANITY_START;
+
+    if (offset < 0 || offset >= SM64AP_NUM_TREESANITY_CHECKS) {
+        return -1;
+    }
+
+    return offset;
+}
+
+static int SM64AP_ResolveTreesanityLocation(s16 level, s16 area, s16 x, s16 y, s16 z) {
+    for (int i = 0; i < SM64AP_NUM_TREESANITY_CHECKS; i++) {
+        const SM64APTreesanitySource &source = SM64AP_TREESANITY_SOURCES[i];
+        if (source.level == level
+            && source.area == area
+            && source.x == x
+            && source.y == y
+            && source.z == z) {
+            return SM64AP_LOCATIONID_TREESANITY_START + i;
+        }
+    }
+
+    return 0;
+}
+
+// level/area should be gCurrLevelNum/gCurrAreaIndex; x/y/z should be the grabbed tree object's
+// own position (o->oPos{X,Y,Z}), which for special-preset trees always equals their placement
+// coordinates (see spawn_special_objects()/spawn_macro_abs_yrot_2params(), no offset applied).
+void SM64AP_SendTreesanityCheck(s16 level, s16 area, s16 x, s16 y, s16 z) {
+    if (!SM64AP_CanReportProgress()) {
+        return;
+    }
+
+    int locId = SM64AP_ResolveTreesanityLocation(level, area, x, y, z);
+    int offset = SM64AP_TreesanityOffsetFromLocationId(locId);
+    if (offset < 0 || sm64_sent_treesanity_checks[offset] || SM64AP_CheckedLoc(locId)) {
+        return;
+    }
+
+    sm64_sent_treesanity_checks[offset] = true;
+    SM64AP_SendItem(locId);
+}
+
+static int SM64AP_CourtyardBooCheckOffsetFromLocationId(int locId) {
+    int offset = locId - SM64AP_LOCATIONID_COURTYARD_BOO_CHECKS_START;
+
+    if (offset < 0 || offset >= SM64AP_NUM_COURTYARD_BOO_CHECKS) {
+        return -1;
+    }
+
+    return offset;
+}
+
+static int SM64AP_ResolveCourtyardBooCheckLocation(s16 x, s16 y, s16 z) {
+    for (int i = 0; i < SM64AP_NUM_COURTYARD_BOO_CHECKS; i++) {
+        const SM64APCourtyardBooSource &source = SM64AP_COURTYARD_BOO_SOURCES[i];
+        if (source.x == x && source.y == y && source.z == z) {
+            return SM64AP_LOCATIONID_COURTYARD_BOO_CHECKS_START + i;
+        }
+    }
+
+    return 0;
+}
+
+// x/y/z should be the defeated boo's own oHomeX/Y/Z (its spawn position, captured by SET_HOME()
+// before it starts wandering -- see bhvGhostHuntBoo in behavior_data.c), not its current
+// position. All 9 checks are always in Castle Courtyard, so no level/area is needed.
+void SM64AP_SendCourtyardBooCheck(s16 x, s16 y, s16 z) {
+    if (!SM64AP_CanReportProgress()) {
+        return;
+    }
+
+    int locId = SM64AP_ResolveCourtyardBooCheckLocation(x, y, z);
+    int offset = SM64AP_CourtyardBooCheckOffsetFromLocationId(locId);
+    if (offset < 0 || sm64_sent_courtyard_boo_checks[offset] || SM64AP_CheckedLoc(locId)) {
+        return;
+    }
+
+    sm64_sent_courtyard_boo_checks[offset] = true;
     SM64AP_SendItem(locId);
 }
 
@@ -3843,10 +3979,6 @@ int SM64AP_GetProgressiveMetalCapBonusFrames() {
 
 int SM64AP_GetProgressiveVanishCapBonusFrames() {
     return sm64_progressive_vanish_cap_count * SM64AP_PROGRESSIVE_CAP_SECONDS_PER_STACK * 30;
-}
-
-float SM64AP_GetSwimSpeedMultiplier() {
-    return 1.0f + 0.10f * sm64_progressive_swim_count;
 }
 
 
