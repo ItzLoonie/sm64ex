@@ -18,8 +18,6 @@
 #include "thread6.h"
 
 #define MIN_SWIM_STRENGTH 160
-#include "sm64ap.h"
-
 #define MIN_SWIM_SPEED 16.0f
 
 static s16 sWasAtSurface = FALSE;
