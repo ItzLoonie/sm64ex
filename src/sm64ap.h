@@ -81,49 +81,35 @@ extern "C" {
 #define SM64AP_NUM_BLOCKSANITY_CHECKS 103
 #define SM64AP_LOCATIONID_BLOCKSANITY_END (SM64AP_LOCATIONID_BLOCKSANITY_START + SM64AP_NUM_BLOCKSANITY_CHECKS - 1)
 
-// Signsanity: every readable sign (wooden signpost or wall sign) is its own check.
 #define SM64AP_LOCATIONID_SIGNSANITY_START (SM64AP_LOCATIONID_BLOCKSANITY_END + 1)
 #define SM64AP_NUM_SIGNSANITY_CHECKS 91
 #define SM64AP_LOCATIONID_SIGNSANITY_END (SM64AP_LOCATIONID_SIGNSANITY_START + SM64AP_NUM_SIGNSANITY_CHECKS - 1)
 
-// Toadsanity: every Toad NPC that doesn't already give a Star is its own check.
 #define SM64AP_LOCATIONID_TOADSANITY_START (SM64AP_LOCATIONID_SIGNSANITY_END + 1)
 #define SM64AP_NUM_TOADSANITY_CHECKS 5
 #define SM64AP_LOCATIONID_TOADSANITY_END (SM64AP_LOCATIONID_TOADSANITY_START + SM64AP_NUM_TOADSANITY_CHECKS - 1)
 
-// Cannonsanity (Cannon Checks) has been removed. Its old id range is reserved, rather than
-// reused, so ChestChecks and every range after it keep their existing absolute location ids.
 #define SM64AP_LOCATIONID_CANNONSANITY_RESERVED_START (SM64AP_LOCATIONID_TOADSANITY_END + 1)
 #define SM64AP_NUM_CANNONSANITY_RESERVED_IDS 20
 #define SM64AP_LOCATIONID_CANNONSANITY_RESERVED_END (SM64AP_LOCATIONID_CANNONSANITY_RESERVED_START + SM64AP_NUM_CANNONSANITY_RESERVED_IDS - 1)
 
-// Chest Checks: each of the 12 treasure chests in Jolly Roger Bay (sunken ship + underwater
-// chest room) and Dire, Dire Docks is its own check.
 #define SM64AP_LOCATIONID_CHESTCHECKS_START (SM64AP_LOCATIONID_CANNONSANITY_RESERVED_END + 1)
 #define SM64AP_NUM_CHESTCHECKS_CHECKS 12
 #define SM64AP_LOCATIONID_CHESTCHECKS_END (SM64AP_LOCATIONID_CHESTCHECKS_START + SM64AP_NUM_CHESTCHECKS_CHECKS - 1)
 
-// Treesanity: every individual tree object (bhvTree, grabbed as a pole) is its own check.
 #define SM64AP_LOCATIONID_TREESANITY_START (SM64AP_LOCATIONID_CHESTCHECKS_END + 1)
 #define SM64AP_NUM_TREESANITY_CHECKS 87
 #define SM64AP_LOCATIONID_TREESANITY_END (SM64AP_LOCATIONID_TREESANITY_START + SM64AP_NUM_TREESANITY_CHECKS - 1)
 
-// Courtyard Boo Checks: each of the 9 Boos spawned by the 3 Boo Triplets in the Castle
-// Courtyard (i.e. excluding the caged Boo that guards the Big Boo's Haunt entrance, which is a
-// separate, singular bhvBooWithCage object) is its own check.
 #define SM64AP_LOCATIONID_COURTYARD_BOO_CHECKS_START (SM64AP_LOCATIONID_TREESANITY_END + 1)
 #define SM64AP_NUM_COURTYARD_BOO_CHECKS 9
 #define SM64AP_LOCATIONID_COURTYARD_BOO_CHECKS_END (SM64AP_LOCATIONID_COURTYARD_BOO_CHECKS_START + SM64AP_NUM_COURTYARD_BOO_CHECKS - 1)
 
-#define SM64AP_NUM_LOCS (SM64AP_LOCATIONID_CHESTCHECKS_END - SM64AP_ID_OFFSET + 1)
+#define SM64AP_NUM_LOCS (SM64AP_LOCATIONID_COURTYARD_BOO_CHECKS_END - SM64AP_ID_OFFSET + 1)
 
-// New item: unlocks the pipe in Bowser in the Sky that leads to the BitS Bowser fight.
-// Without this item, the pipe does not spawn at all.
 #define SM64AP_ID_BITS_PIPE (SM64AP_ID_OFFSET + 1770)
 #define SM64AP_ID_BITDW_PIPE (SM64AP_ID_OFFSET + 1771)
 
-// New item: an extra "Power Star" currency, separate from real course Stars, optionally
-// required (alongside SM64AP_ID_BITS_PIPE) to spawn the pipe in Bowser in the Sky.
 #define SM64AP_ID_POWER_STAR (SM64AP_ID_OFFSET + 1772)
 
 #define SM64AP_NUM_ABILITIES 11
