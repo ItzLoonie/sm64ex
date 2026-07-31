@@ -566,6 +566,9 @@
 #define MODEL_SPENT_COIN                      0xE2        // spent_coin_geo
 #define MODEL_SPENT_BLUE_COIN                 0xE3        // spent_blue_coin_geo
 
+#define MODEL_GREEN_SPARKLES               0xE4        // green_sparkles_geo
+#define MODEL_PURPLE_SPARKLES              0xE5        // purple_sparkles_geo
+
 // Menu Models (overwrites Level Geometry IDs)
 #define MODEL_MAIN_MENU_MARIO_SAVE_BUTTON         MODEL_LEVEL_GEOMETRY_03   // main_menu_geo_0001D0
 #define MODEL_MAIN_MENU_RED_ERASE_BUTTON          MODEL_LEVEL_GEOMETRY_04   // main_menu_geo_000290
