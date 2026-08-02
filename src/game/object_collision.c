@@ -1,11 +1,52 @@
 #include <PR/ultratypes.h>
 
 #include "sm64.h"
+#include "behavior_data.h"
 #include "debug.h"
 #include "interaction.h"
+#include "level_update.h"
 #include "mario.h"
+#include "memory.h"
 #include "object_list_processor.h"
 #include "spawn_object.h"
+
+/**
+ * Extra pickup radius applied only when Mario is actively flying with the
+ * Wing Cap (ACT_FLYING), and only against coins and the invisible "hidden
+ * star" trigger volumes. This makes those two interactions much more
+ * forgiving to hit while zooming past them mid-flight, without changing
+ * collision against anything else (enemies, poles, pushables, walls, etc.)
+ * or during any other action.
+ */
+#define WING_FLIGHT_PICKUP_RADIUS_BONUS 150.0f
+
+/**
+ * Returns the extra collision radius to grant this Mario/object pair, or
+ * 0 if the bonus doesn't apply (not flying, or not a coin/hidden star
+ * trigger).
+ */
+static f32 get_wing_flight_pickup_bonus(struct Object *a, struct Object *b) {
+    struct Object *other;
+
+    if (a == gMarioObject) {
+        other = b;
+    } else if (b == gMarioObject) {
+        other = a;
+    } else {
+        return 0.0f;
+    }
+
+    if (gMarioState == NULL || gMarioState->action != ACT_FLYING) {
+        return 0.0f;
+    }
+
+    if ((other->oInteractType & INTERACT_COIN)
+        || other->behavior == segmented_to_virtual(bhvHiddenStarTrigger)) {
+        return WING_FLIGHT_PICKUP_RADIUS_BONUS;
+    }
+
+    return 0.0f;
+}
 
 struct Object *debug_print_obj_collision(struct Object *a) {
     struct Object *sp24;
@@ -28,7 +69,7 @@ int detect_object_hitbox_overlap(struct Object *a, struct Object *b) {
     f32 dx = a->oPosX - b->oPosX;
     UNUSED f32 sp30 = sp3C - sp38;
     f32 dz = a->oPosZ - b->oPosZ;
-    f32 collisionRadius = a->hitboxRadius + b->hitboxRadius;
+    f32 collisionRadius = a->hitboxRadius + b->hitboxRadius + get_wing_flight_pickup_bonus(a, b);
     f32 distance = sqrtf(dx * dx + dz * dz);
 
     if (collisionRadius > distance) {
