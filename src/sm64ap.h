@@ -422,6 +422,10 @@ AP_EXTERN_C void SM64AP_SetClockToTTCState();
 AP_EXTERN_C void SM64AP_SetTTCEntranceSpeed(int speed);
 AP_EXTERN_C int SM64AP_GetTTCEntranceVariant();
 AP_EXTERN_C s16 SM64AP_GetWDWEntranceWaterLevel(s16 vanillaWaterLevel);
+// Returns a comma-separated list of short entrance names (e.g. "BOB, PSS, LLL") describing which
+// vanilla entrance(s) now lead to destLevel under Area Rando, or "" if there's nothing to report
+// (Area Rando inactive, destLevel not shuffled, or destLevel is Bowser in the Sky).
+AP_EXTERN_C const char *SM64AP_GetAreaRandoSpoiler(s16 destLevel);
 AP_EXTERN_C s16 SM64AP_ResolveAreaMusic(s16 level, s16 area, s16 vanillaSeq);
 AP_EXTERN_C void SM64AP_SelectSkybox(s16 level, s16 area, s16 vanillaSkybox);
 AP_EXTERN_C s16 SM64AP_ResolveSkyboxBackground(s16 vanillaSkybox);

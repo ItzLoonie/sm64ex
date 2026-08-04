@@ -1970,6 +1970,107 @@ static int SM64AP_GetMappedEntrance(int sourceEntrance) {
     return sourceEntrance;
 }
 
+struct SM64APEntranceSpoilerSource {
+    s16 level;
+    const char *shortName;
+};
+
+
+// One entry per vanilla entrance that Area Rando can shuffle.
+static const SM64APEntranceSpoilerSource sm64ap_spoiler_sources[] = {
+    { LEVEL_BOB,   "BOB" },
+    { LEVEL_WF,    "WF" },
+    { LEVEL_JRB,   "JRB" },
+    { LEVEL_CCM,   "CCM" },
+    { LEVEL_BBH,   "BBH" },
+    { LEVEL_HMC,   "HMC" },
+    { LEVEL_LLL,   "LLL" },
+    { LEVEL_SSL,   "SSL" },
+    { LEVEL_DDD,   "DDD" },
+    { LEVEL_SL,    "SL" },
+    { LEVEL_TTM,   "TTM" },
+    { LEVEL_THI,   "THI" },
+    { LEVEL_RR,    "RR" },
+    { LEVEL_PSS,   "PSS" },
+    { LEVEL_SA,    "SA" },
+    { LEVEL_BITDW, "BITDW" },
+    { LEVEL_COTMC, "COTMC" },
+    { LEVEL_TOTWC, "TOTWC" },
+    { LEVEL_VCUTM, "VCUTM" },
+    { LEVEL_BITFS, "BITFS" },
+    { LEVEL_WMOTR, "WMOTR" },
+};
+
+const char *SM64AP_GetAreaRandoSpoiler(s16 destLevel) {
+    static std::string spoilerText;
+
+    // Bowser in the Sky is never shuffled, so there's nothing to spoil. 
+	// An empty entrance map also means Area Rando isn't active for this seed.
+    if (destLevel == LEVEL_BITS || map_entrances.empty()) {
+        return "";
+    }
+
+    std::vector<const char *> matches;
+    for (const SM64APEntranceSpoilerSource &source : sm64ap_spoiler_sources) {
+		int entrance = SM64AP_ENTRANCE_ID(source.level, 1);
+		int destination = SM64AP_GetMappedEntrance(entrance);
+
+		if (destination / 10 == destLevel) {
+			matches.push_back(source.shortName);
+		}
+
+		// Show self-shuffled entrances for clarity.
+		if (source.level == destLevel &&
+			destination == entrance) {
+			matches.push_back(source.shortName);
+		}
+	}
+    static const char *wdwNames[] = { "WDW Low", "WDW Mid", "WDW High", };
+	for (int variant = SM64AP_ENTRANCE_WDW_LOW;
+		 variant <= SM64AP_ENTRANCE_WDW_HIGH;
+		 variant++) {
+
+		int entrance = SM64AP_ENTRANCE_ID(LEVEL_WDW, variant);
+		int destination = SM64AP_GetMappedEntrance(entrance);
+
+		if (destination / 10 == destLevel ||
+			destination == entrance) {
+			matches.push_back(
+				wdwNames[variant - SM64AP_ENTRANCE_WDW_LOW]
+			);
+		}
+	}
+    static const char *ttcNames[] = { "TTC Stopped", "TTC Slow", "TTC Random", "TTC Fast",};
+
+	for (int variant = SM64AP_ENTRANCE_TTC_STOPPED;
+		 variant <= SM64AP_ENTRANCE_TTC_RANDOM;
+		 variant++) {
+
+		int entrance = SM64AP_ENTRANCE_ID(LEVEL_TTC, variant);
+		int destination = SM64AP_GetMappedEntrance(entrance);
+
+		if (destination / 10 == destLevel ||
+			destination == entrance) {
+			matches.push_back(
+				ttcNames[variant - SM64AP_ENTRANCE_TTC_STOPPED]
+			);
+		}
+	}
+
+    if (matches.empty()) {
+        return "";
+    }
+
+    spoilerText.clear();
+    for (size_t i = 0; i < matches.size(); i++) {
+        if (i != 0) {
+            spoilerText += ", ";
+        }
+        spoilerText += matches[i];
+    }
+    return spoilerText.c_str();
+}
+
 static void SM64AP_SetTTCEntranceVariantSpeed(int variant) {
     switch (variant) {
         case SM64AP_ENTRANCE_TTC_STOPPED:

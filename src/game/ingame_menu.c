@@ -3082,14 +3082,58 @@ static void **get_pause_course_name_table(void) {
 #endif
 }
 
-static const u8 *pause_unlock_view_title(const struct PauseUnlockView *view) {
-    void **courseNameTbl = get_pause_course_name_table();
+// Appends " (SHORT, NAMES)" (Area Rando spoiler) to baseTitle into dest, if applicable.
+// '(' and ')' aren't covered by the ASCII_TO_DIALOG macro, so they're written directly using
+// their charmap.txt values.
+#define DIALOG_CHAR_OPEN_PAREN  0xE1
+#define DIALOG_CHAR_CLOSE_PAREN 0xE3
 
-    if (view->type == PAUSE_UNLOCK_VIEW_COURSE) {
-        return segmented_to_virtual(courseNameTbl[view->courseNum]);
+static void pause_append_area_rando_spoiler(const u8 *baseTitle, u8 *dest, s16 maxLength, s16 levelNum) {
+    const char *spoiler = SM64AP_GetAreaRandoSpoiler(levelNum);
+    s16 i = 0;
+    s16 j;
+
+    while (baseTitle[i] != DIALOG_CHAR_TERMINATOR && i < maxLength - 1) {
+        dest[i] = baseTitle[i];
+        i++;
     }
 
-    return view->label;
+    if (spoiler[0] != '\0') {
+        if (i < maxLength - 1) dest[i++] = DIALOG_CHAR_SPACE;
+        if (i < maxLength - 1) dest[i++] = DIALOG_CHAR_OPEN_PAREN;
+        for (j = 0; spoiler[j] != '\0' && i < maxLength - 1; j++) {
+            if (spoiler[j] == ' ') {
+                dest[i++] = DIALOG_CHAR_SPACE;
+            } else if (spoiler[j] == ',') {
+                dest[i++] = DIALOG_CHAR_COMMA;
+            } else {
+                dest[i++] = ASCII_TO_DIALOG(spoiler[j]);
+            }
+        }
+        if (i < maxLength - 1) dest[i++] = DIALOG_CHAR_CLOSE_PAREN;
+    }
+
+    dest[i] = DIALOG_CHAR_TERMINATOR;
+}
+
+static const u8 *pause_unlock_view_title(const struct PauseUnlockView *view) {
+    void **courseNameTbl = get_pause_course_name_table();
+    static u8 sPauseUnlockViewTitle[64];
+    const u8 *baseTitle;
+
+    if (view->type == PAUSE_UNLOCK_VIEW_COURSE) {
+        baseTitle = segmented_to_virtual(courseNameTbl[view->courseNum]);
+    } else {
+        baseTitle = view->label;
+    }
+
+    // The castle view isn't a shuffled entrance, so it's left as-is.
+    if (view->type == PAUSE_UNLOCK_VIEW_CASTLE) {
+        return baseTitle;
+    }
+
+    pause_append_area_rando_spoiler(baseTitle, sPauseUnlockViewTitle, sizeof(sPauseUnlockViewTitle), view->levelNum);
+    return sPauseUnlockViewTitle;
 }
 
 static void render_pause_castle_unlocks(s16 x, s16 y);
