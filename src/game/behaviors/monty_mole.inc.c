@@ -142,7 +142,8 @@ static void monty_mole_hole_update_sparkles(void) {
     if (!(o->oActiveParticleFlags & ACTIVE_PARTICLE_SPARKLES) && (o->oTimer % 15) == 0) {
         o->oActiveParticleFlags |= ACTIVE_PARTICLE_SPARKLES;
         sparkle = spawn_object_at_origin(o, 0, MODEL_ORANGE_SPARKLES, bhvSparkleParticleSpawner);
-        obj_copy_pos_and_angle(sparkle, o);
+		obj_copy_pos_and_angle(sparkle, o);
+		sparkle->oPosY += 60.0f;
     }
 }
 
