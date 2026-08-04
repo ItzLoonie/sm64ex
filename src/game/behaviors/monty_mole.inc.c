@@ -27,6 +27,19 @@ f32 sMontyMoleLastKilledPosY;
 f32 sMontyMoleLastKilledPosZ;
 
 /**
+ * Whether the kill-streak 1-up has already spawned this level load, indexed
+ * by monty_mole_ap_1up_group(). Used to stop hole sparkles once the reward
+ * has appeared.
+ */
+bool sMontyMoleOneUpSpawned[2];
+
+/**
+ * Forward declaration; defined further down alongside the kill-streak logic
+ * that also depends on it. Also used by the hole sparkle suppression check.
+ */
+static s16 monty_mole_ap_1up_group(void);
+
+/**
  * Link all objects with the given behavior using parentObj.
  * The result is a singly linked list in reverse processing order. Return the
  * start of this list.
@@ -98,6 +111,42 @@ static struct Object *monty_mole_select_available_hole(f32 minDistToMario) {
 }
 
 /**
+ * Whether the orange-red hole sparkles should be suppressed: either the
+ * kill-streak 1-up for this hole's group has already spawned this level
+ * load, or its AP location has already been collected.
+ */
+static bool monty_mole_hole_should_suppress_sparkle(void) {
+    s16 group = monty_mole_ap_1up_group();
+    s32 oneUpLocId;
+
+    if (sMontyMoleOneUpSpawned[group]) {
+        return TRUE;
+    }
+
+    oneUpLocId = SM64AP_ResolveOneUpLocation(
+        gCurrLevelNum, gCurrAreaIndex, SM64AP_1UP_SOURCE_MONTY_MOLES, group, 0, 0, 0);
+    return SM64AP_ShouldSuppressOneUp(oneUpLocId);
+}
+
+/**
+ * Periodically spawn orange-red sparkles from the hole, at the same rate as
+ * the other sparkle-emitting triggers (every 15 frames), unless suppressed.
+ */
+static void monty_mole_hole_update_sparkles(void) {
+    struct Object *sparkle;
+
+    if (monty_mole_hole_should_suppress_sparkle()) {
+        return;
+    }
+
+    if (!(o->oActiveParticleFlags & ACTIVE_PARTICLE_SPARKLES) && (o->oTimer % 15) == 0) {
+        o->oActiveParticleFlags |= ACTIVE_PARTICLE_SPARKLES;
+        sparkle = spawn_object_at_origin(o, 0, MODEL_ORANGE_SPARKLES, bhvSparkleParticleSpawner);
+        obj_copy_pos_and_angle(sparkle, o);
+    }
+}
+
+/**
  * Update function for bhvMontyMoleHole.
  */
 void bhv_monty_mole_hole_update(void) {
@@ -105,9 +154,13 @@ void bhv_monty_mole_hole_update(void) {
     if (o->parentObj == o) {
         sMontyMoleHoleList = link_objects_with_behavior(bhvMontyMoleHole);
         sMontyMoleKillStreak = 0;
+        sMontyMoleOneUpSpawned[0] = FALSE;
+        sMontyMoleOneUpSpawned[1] = FALSE;
     } else if (o->oMontyMoleHoleCooldown > 0) {
         o->oMontyMoleHoleCooldown -= 1;
     }
+
+    monty_mole_hole_update_sparkles();
 }
 
 /**
@@ -392,15 +445,17 @@ void bhv_monty_mole_update(void) {
             //  attack moles in these holes consecutively.
             if (distToLastKill < 1500.0f) {
                 if (sMontyMoleKillStreak == 7) {
+                    s16 oneUpGroup = monty_mole_ap_1up_group();
                     s32 oneUpLocId = SM64AP_ResolveOneUpLocation(
                         gCurrLevelNum, gCurrAreaIndex, SM64AP_1UP_SOURCE_MONTY_MOLES,
-                        monty_mole_ap_1up_group(), 0, 0, 0);
+                        oneUpGroup, 0, 0, 0);
                     if (!SM64AP_ShouldSuppressOneUp(oneUpLocId)) {
                         struct Object *oneUp;
                         play_puzzle_jingle();
                         oneUp = spawn_object(o, MODEL_1UP, bhv1upWalking);
                         oneUp->o1UpApLocationId = oneUpLocId;
                     }
+                    sMontyMoleOneUpSpawned[oneUpGroup] = TRUE;
                 }
             } else {
                 sMontyMoleKillStreak = 0;

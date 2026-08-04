@@ -568,6 +568,7 @@
 
 #define MODEL_GREEN_SPARKLES               0xE4        // green_sparkles_geo
 #define MODEL_PURPLE_SPARKLES              0xE5        // purple_sparkles_geo
+#define MODEL_ORANGE_SPARKLES              0xE6        // orange_sparkles_geo
 
 // Menu Models (overwrites Level Geometry IDs)
 #define MODEL_MAIN_MENU_MARIO_SAVE_BUTTON         MODEL_LEVEL_GEOMETRY_03   // main_menu_geo_0001D0

@@ -15,6 +15,7 @@
 #include "sparkle/geo.inc.c"
 #include "green_sparkle/geo.inc.c"
 #include "purple_sparkle/geo.inc.c"
+#include "orange_sparkle/geo.inc.c"
 #include "water_splash/geo.inc.c"
 #include "sparkle_animation/geo.inc.c"
 #include "mario/geo.inc.c"

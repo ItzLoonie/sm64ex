@@ -293,6 +293,16 @@ extern const Gfx purple_sparkles_seg4_dl_0402A540[];
 extern const Gfx purple_sparkles_seg4_dl_0402A558[];
 extern const Gfx purple_sparkles_seg4_dl_0402A570[];
 
+// orange_sparkle
+extern const GeoLayout orange_sparkles_geo[];
+extern const Gfx orange_sparkles_seg4_dl_0402A490[];
+extern const Gfx orange_sparkles_seg4_dl_0402A4F8[];
+extern const Gfx orange_sparkles_seg4_dl_0402A510[];
+extern const Gfx orange_sparkles_seg4_dl_0402A528[];
+extern const Gfx orange_sparkles_seg4_dl_0402A540[];
+extern const Gfx orange_sparkles_seg4_dl_0402A558[];
+extern const Gfx orange_sparkles_seg4_dl_0402A570[];
+
 // sparkle_animation
 extern const GeoLayout sparkles_animation_geo[];
 extern const Gfx sparkles_animation_seg4_dl_04035288[];

@@ -70,6 +70,7 @@ const LevelScript level_main_scripts_entry[] = {
     LOAD_MODEL_FROM_GEO(MODEL_SPARKLES,                sparkles_geo),
     LOAD_MODEL_FROM_GEO(MODEL_GREEN_SPARKLES,          green_sparkles_geo),
     LOAD_MODEL_FROM_GEO(MODEL_PURPLE_SPARKLES,         purple_sparkles_geo),
+    LOAD_MODEL_FROM_GEO(MODEL_ORANGE_SPARKLES,         orange_sparkles_geo),
     LOAD_MODEL_FROM_GEO(MODEL_BUBBLE,                  bubble_geo),
     LOAD_MODEL_FROM_GEO(MODEL_SMALL_WATER_SPLASH,      small_water_splash_geo),
     LOAD_MODEL_FROM_GEO(MODEL_IDLE_WATER_WAVE,         idle_water_wave_geo),

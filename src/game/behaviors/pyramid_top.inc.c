@@ -146,7 +146,16 @@ void bhv_pyramid_top_fragment_loop(void) {
  * top's total count of touched detectors, and deactivate the detector.
  */
 void bhv_pyramid_pillar_touch_detector_loop(void) {
+    struct Object *sparkle;
+
     cur_obj_become_tangible();
+
+    if (!(o->oActiveParticleFlags & ACTIVE_PARTICLE_SPARKLES) && (o->oTimer % 15) == 0) {
+        o->oActiveParticleFlags |= ACTIVE_PARTICLE_SPARKLES;
+        sparkle = spawn_object_at_origin(o, 0, MODEL_SPARKLES, bhvSparkleParticleSpawner);
+        obj_copy_pos_and_angle(sparkle, o);
+    }
+
     if (obj_check_if_collided_with_object(o, gMarioObject) == 1) {
         // Increase the pyramid top's count of pillars touched.
         o->parentObj->oPyramidTopPillarsTouched++;

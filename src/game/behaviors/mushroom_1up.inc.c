@@ -387,11 +387,27 @@ void bhv_1up_hidden_loop(void) {
     }
 }
 
+/**
+ * Whether a 1-up trigger's sparkles should be suppressed because the hidden
+ * 1-up it counts towards has already been suppressed (or already collected
+ * via AP, or is otherwise no longer around).
+ */
+static bool hidden_1up_trigger_should_suppress_sparkle(const BehaviorScript *hiddenBehavior) {
+    struct Object *hidden1up = cur_obj_nearest_object_with_behavior(hiddenBehavior);
+
+    if (hidden1up == NULL) {
+        return TRUE;
+    }
+
+    return SM64AP_ShouldSuppressOneUp(hidden1up->o1UpApLocationId);
+}
+
 void bhv_1up_hidden_trigger_loop(void) {
     struct Object *sp1C;
     struct Object *sparkle;
 
-    if (!(o->oActiveParticleFlags & ACTIVE_PARTICLE_SPARKLES) && (o->oTimer % 15) == 0) {
+    if (!hidden_1up_trigger_should_suppress_sparkle(bhvHidden1up)
+        && !(o->oActiveParticleFlags & ACTIVE_PARTICLE_SPARKLES) && (o->oTimer % 15) == 0) {
         o->oActiveParticleFlags |= ACTIVE_PARTICLE_SPARKLES;
         sparkle = spawn_object_at_origin(o, 0, MODEL_GREEN_SPARKLES, bhvSparkleParticleSpawner);
         obj_copy_pos_and_angle(sparkle, o);
@@ -447,7 +463,8 @@ void bhv_1up_hidden_in_pole_loop(void) {
 void bhv_1up_hidden_in_pole_trigger_loop(void) {
     struct Object *sp1C;
 
-	if (!(o->oActiveParticleFlags & ACTIVE_PARTICLE_SPARKLES) && (o->oTimer % 15) == 0) {
+	if (!hidden_1up_trigger_should_suppress_sparkle(bhvHidden1upInPole)
+        && !(o->oActiveParticleFlags & ACTIVE_PARTICLE_SPARKLES) && (o->oTimer % 15) == 0) {
     o->oActiveParticleFlags |= ACTIVE_PARTICLE_SPARKLES;
     obj_copy_pos_and_angle(spawn_object_at_origin(o, 0, MODEL_GREEN_SPARKLES, bhvSparkleParticleSpawner), o);
 	}

@@ -175,10 +175,22 @@ static void triplet_butterfly_act_explode(void) {
 }
 
 
+static bool triplet_butterfly_should_suppress_sparkle(void) {
+    s32 oneUpLocId = SM64AP_ResolveOneUpLocation(
+        gCurrLevelNum, gCurrAreaIndex, SM64AP_1UP_SOURCE_BUTTERFLY,
+        o->oBehParams2ndByte & TRIPLET_BUTTERFLY_BP_NO_BOMBS,
+        (s16) o->oHomeX, (s16) o->oHomeY, (s16) o->oHomeZ);
+    return SM64AP_ShouldSuppressOneUp(oneUpLocId);
+}
+
 static void triplet_butterfly_spawn_spawner_sparkles(void) {
     struct Object *sparkle;
 
     if ((o->oBehParams2ndByte & TRIPLET_BUTTERFLY_BP_BUTTERFLY_NUM) != 0) {
+        return;
+    }
+
+    if (triplet_butterfly_should_suppress_sparkle()) {
         return;
     }
 
