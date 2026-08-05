@@ -474,6 +474,7 @@ AP_EXTERN_C bool SM64AP_LevelCoinUnlockEnabled(s16, bool, int);
 AP_EXTERN_C bool SM64AP_HaveLevelCapOrGlobal(int);
 AP_EXTERN_C int SM64AP_LevelMoveAreaForLevel(s16);
 AP_EXTERN_C bool SM64AP_HaveLevelMoveOrGlobal(int, int);
+AP_EXTERN_C bool SM64AP_MoveRandoEnabled(void);
 AP_EXTERN_C bool SM64AP_CollectedCourseStar(int, int);
 AP_EXTERN_C u32 SM64AP_ServerSaveFlags();
 AP_EXTERN_C void SM64AP_SetServerSaveFlags(u32);

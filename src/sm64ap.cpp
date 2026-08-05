@@ -152,6 +152,10 @@ bool sm64_have_painting[NUM_PAINTING_LOCKS];
 bool sm64_have_thi_tiny_painting = false;
 int sm64_completion_type = 0;
 std::bitset<SM64AP_NUM_ABILITIES> sm64_have_abilities;
+// Tracks whether the current slot actually randomizes moves (i.e. the seed's
+// MoveRandoVec had any bits set). Used to hide the "available moves" HUD
+// overlay entirely when move rando isn't part of this seed.
+static bool sm64_move_rando_enabled = false;
 std::bitset<SM64AP_NUM_LEVEL_MOVE_AREAS * SM64AP_NUM_LEVEL_MOVES> sm64_have_level_moves;
 std::bitset<SM64AP_NUM_FEATURES> sm64_have_features;
 std::bitset<SM64AP_NUM_LEVEL_CAPS> sm64_have_level_caps;
@@ -2640,9 +2644,16 @@ static void SM64AP_SetMarioColors(std::string rawColors) {
 }
 
 void SM64AP_SetMoveRandoVec(int vec) {
+    if (vec != 0) {
+        sm64_move_rando_enabled = true;
+    }
     for (int i = 1; i < SM64AP_NUM_ABILITIES; i++) { // Start at 1, DJ bit is unnecessary
         sm64_have_abilities[i] = !std::bitset<SM64AP_NUM_ABILITIES>(vec).test(i) || sm64_have_abilities[i];
     }
+}
+
+bool SM64AP_MoveRandoEnabled() {
+    return sm64_move_rando_enabled;
 }
 void SM64AP_ResetItems() {
     {
@@ -2666,6 +2677,7 @@ void SM64AP_ResetItems() {
         sm64_have_painting[i] = false;
     }
     sm64_have_thi_tiny_painting = false;
+    sm64_move_rando_enabled = false;
     sm64_have_abilities.reset();
     sm64_have_level_moves.reset();
     sm64_have_features.reset();

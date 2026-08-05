@@ -475,6 +475,10 @@ void render_hud(void) {
             render_hud_mario_lives();
         }
 
+        if (configHUD) {
+            render_hud_available_moves();
+        }
+
         if (hudDisplayFlags & HUD_DISPLAY_FLAG_COIN_COUNT && configHUD) {
             render_hud_coins();
         }

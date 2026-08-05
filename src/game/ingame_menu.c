@@ -3029,6 +3029,105 @@ static void render_pause_move_unlocks(s16 x, s16 y, s16 moveArea) {
     }
 }
 
+// Position/spacing for the live "available moves" HUD overlay, drawn in
+// the top-left corner just below the lives counter (which sits at
+// GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(22), y=209/210).
+#define HUD_MOVES_LIST_X GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(6)
+#define HUD_MOVES_LIST_TOP_Y 190
+#define HUD_MOVES_LIST_LINE_HEIGHT 11
+#define HUD_MOVES_LIST_WIDTH 200
+
+/**
+ * Draws one line of the HUD move-list with a small black drop shadow
+ * behind a light green fill, matching the readable text style used by
+ * the pause/options menus (see optmenu_draw_text_left).
+ */
+static void render_hud_moves_list_line(s16 x, s16 y, const u8 *str) {
+    gDPSetEnvColor(gDisplayListHead++, 0, 0, 0, 255);
+    print_generic_string(x + 1, y - 1, str);
+    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, 255);
+    print_generic_string(x, y, str);
+}
+
+/**
+ * Renders a small live HUD overlay, below the lives counter, listing
+ * every move currently unlocked for the course Mario is standing in
+ * (using the same move-area/unlock logic as the pause menu's unlock
+ * screen). Intended for move-randomizer seeds so the player always has
+ * an at-a-glance reminder of what they can currently do here.
+ *
+ * The overlay is skipped entirely when the current seed doesn't
+ * randomize moves (SM64AP_MoveRandoEnabled() is false), since in that
+ * case every move is always available and the list would be pointless
+ * clutter. It re-evaluates every frame, so it updates live as soon as
+ * a move unlock is received or the player changes courses.
+ */
+void render_hud_available_moves(void) {
+    static const u8 textMovesHeader[] = {
+        ASCII_TO_DIALOG('M'), ASCII_TO_DIALOG('O'), ASCII_TO_DIALOG('V'),
+        ASCII_TO_DIALOG('E'), ASCII_TO_DIALOG('S'), DIALOG_CHAR_TERMINATOR
+    };
+    s16 moveArea;
+    s16 lineY;
+    s16 movesShown = 0;
+    u16 i;
+
+    if (!SM64AP_MoveRandoEnabled()) {
+        return;
+    }
+
+    moveArea = SM64AP_LevelMoveAreaForLevel(gCurrLevelNum);
+    if (moveArea < 0) {
+        return;
+    }
+	
+	// gDPPipeSync(gDisplayListHead++);
+    // gDPSetRenderMode(gDisplayListHead++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
+    // gDPSetCycleType(gDisplayListHead++, G_CYC_FILL);
+    // gDPSetFillColor(gDisplayListHead++, GPACK_RGBA5551(100, 100, 100, 128));
+    // gDPFillRectangle(gDisplayListHead++, HUD_MOVES_LIST_X - 4, HUD_MOVES_LIST_TOP_Y - 10 * HUD_MOVES_LIST_LINE_HEIGHT, HUD_MOVES_LIST_X + HUD_MOVES_LIST_WIDTH, HUD_MOVES_LIST_TOP_Y + 6);
+    // gDPPipeSync(gDisplayListHead++);
+    // gDPSetCycleType(gDisplayListHead++, G_CYC_1CYCLE);
+	
+    gSPDisplayList(gDisplayListHead++, dl_ia_text_begin);
+
+    render_hud_moves_list_line(HUD_MOVES_LIST_X, HUD_MOVES_LIST_TOP_Y, textMovesHeader);
+    lineY = HUD_MOVES_LIST_TOP_Y - HUD_MOVES_LIST_LINE_HEIGHT;
+
+    for (i = 0; i < sizeof(sPauseMoveUnlocks) / sizeof(sPauseMoveUnlocks[0]); i++) {
+        const struct PauseMoveUnlock *unlock = &sPauseMoveUnlocks[i];
+        const u8 *label = unlock->label;
+        bool unlocked = SM64AP_HaveLevelMoveOrGlobal(moveArea, unlock->move);
+        bool notApplicable = moveArea == SM64AP_LEVEL_MOVE_AREA_BBH
+                              && unlock->move == SM64AP_LEVEL_MOVE_CLIMB;
+
+        if (unlock->move == SM64AP_LEVEL_MOVE_TRIPLE_JUMP && !unlocked
+            && SM64AP_CanDoubleJumpForArea(moveArea)) {
+            label = sMoveDouble;
+            unlocked = true;
+        }
+
+        if (!unlocked || notApplicable) {
+            continue;
+        }
+
+        render_hud_moves_list_line(HUD_MOVES_LIST_X, lineY, label);
+        lineY -= HUD_MOVES_LIST_LINE_HEIGHT;
+        movesShown++;
+    }
+	
+	if (movesShown == 0) {
+    static const u8 textNoMoves[] = {
+        ASCII_TO_DIALOG('N'), ASCII_TO_DIALOG('O'),
+        ASCII_TO_DIALOG('N'), ASCII_TO_DIALOG('E'), DIALOG_CHAR_TERMINATOR
+    };
+    render_hud_moves_list_line(HUD_MOVES_LIST_X, lineY, textNoMoves);
+	}
+
+
+    gSPDisplayList(gDisplayListHead++, dl_ia_text_end);
+}
+
 static void render_pause_area_unlocks(s16 x, s16 y, const struct PauseUnlockView *view) {
     static const u8 textNoItems[] = { TEXT_UNLOCK_NO_ITEMS };
     s16 unlockCount = 0;
