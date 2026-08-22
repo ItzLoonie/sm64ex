@@ -39,6 +39,100 @@ enum SeqId {
     SEQ_EVENT_CUTSCENE_ENDING,        // 0x20
     SEQ_MENU_FILE_SELECT,             // 0x21
     SEQ_EVENT_CUTSCENE_LAKITU,        // 0x22 (not in JP)
+
+    // Custom music from SMW Central
+    SEQ_MK64_RACEWAYS,                      // 0x23
+    SEQ_MK64_BOWSERS_CASTLE,                // 0x24
+    SEQ_MK64_FRAPPE_SNOWLAND,               // 0x25
+    SEQ_MK64_KALIMARI_DESERT,               // 0x26
+    SEQ_MK64_MOO_MOO_FARM,                  // 0x27
+    SEQ_MK64_RAINBOW_ROAD,                  // 0x28
+    SEQ_MKDD_BOWSERS_CASTLE,                // 0x29
+    SEQ_MKDS_WALUIGI_PINBALL,               // 0x2A
+    SEQ_MKDS_TICK_TOCK_CLOCK,               // 0x2B
+    SEQ_MKSC_SNOWLAND,                      // 0x2C
+    SEQ_MKWII_KOOPA_CAPE,                   // 0x2D
+    SEQ_MKWII_MAPLE_TREEWAY,                // 0x2E
+    SEQ_MKWII_RACE_MENU,                    // 0x2F
+    SEQ_A_MORNING_JOG,                      // 0x30
+    SEQ_DKR_FROSTY_VILLAGE,                 // 0x31
+    SEQ_DKR_SPACEDUST_ALLEY,                // 0x32
+    SEQ_DKR_WINDMILL_PLAINS,                // 0x33
+    SEQ_FFVII_ONE_WINGED_ANGEL,             // 0x34
+    SEQ_LM_EGADDS_LAB,                      // 0x35
+    SEQ_MK8_RAINBOW_ROAD,                   // 0x36
+    SEQ_MLBIS_CAVI_CAPE,                    // 0x37
+    SEQ_MLBIS_PLACK_BEACH,                  // 0x38
+    SEQ_MLBIS_SHOWTIME,                     // 0x39
+    SEQ_MLDT_DREAM_BATTLE,                  // 0x3A
+    SEQ_MLDT_NEVER_LET_UP,                 // 0x3B
+    SEQ_MLPIT_HOLLI_JOLLI_VILLAGE,          // 0x3C
+    SEQ_MLPIT_THWOMP_CAVERNS,               // 0x3D
+    SEQ_MLPIT_TOAD_TOWN_RUINS,              // 0x3E
+    SEQ_MLSS_BEANBEAN_CASTLE,               // 0x3F
+    SEQ_MLSS_CHUCKHUCK_WOODS,               // 0x40
+    SEQ_MLSS_COME_ON,                       // 0x41
+    SEQ_MLSS_COME_ON_AGAIN,                 // 0x42
+    SEQ_MLSS_HOOHOO_MOUNTAIN,               // 0x43
+    SEQ_MLSS_POPPLE_AND_ROOKIE,             // 0x44
+    SEQ_MLSS_STARDUST_FIELDS,               // 0x45
+    SEQ_NSMB_CASTLE,                        // 0x46
+    SEQ_NSMB_OVERWORLD,                     // 0x47
+    SEQ_NSMBWII_CASTLE,                     // 0x48
+    SEQ_NSMBWII_FOREST,                     // 0x49
+    SEQ_NSMBU_OVERWORLD,                    // 0x4A
+    SEQ_POKEMON_LAVENDER_TOWN,              // 0x4B
+    SEQ_SM3DW_SPRAWLING_SAVANNAH,           // 0x4C
+    SEQ_SM64DS_BOBOMB_SQUAD,                // 0x4D
+    SEQ_SMB_AIRSHIP,                        // 0x4E
+    SEQ_SMB_CASTLE,                         // 0x4F
+    SEQ_SMB_GHOST_HOUSE,                    // 0x50
+    SEQ_SMB_OVERWORLD,                      // 0x51
+    SEQ_SMB_UNDERGROUND,                    // 0x52
+    SEQ_SMB2J_TITLE_SCREEN,                // 0x53
+    SEQ_SMB3_GHOST_HOUSE,                  // 0x54
+    SEQ_SMB3_OVERWORLD,                    // 0x55
+    SEQ_SMG_BUOY_BASE_GALAXY,              // 0x56
+    SEQ_SMG_GOOD_EGG_GALAXY,               // 0x57
+    SEQ_SMG_GUSTY_GARDEN_GALAXY,           // 0x58
+    SEQ_SMG_PURPLE_COMET,                  // 0x59
+    SEQ_SMG_COMET_OBSERVATORY,             // 0x5A
+    SEQ_SMG2_YOSHI_STAR_GALAXY,            // 0x5B
+    SEQ_SMO_BROODALS_BATTLE,               // 0x5C
+    SEQ_SMO_CAP_KINGDOM,                   // 0x5D
+    SEQ_SMO_CASCADE_KINGDOM,               // 0x5E
+    SEQ_SMRPG_BEWARE_THE_FOREST_MUSHROOMS, // 0x5F
+    SEQ_SMRPG_SUNKEN_SHIP,                 // 0x60
+    SEQ_SMS_BIANCO_HILLS,                  // 0x61
+    SEQ_SMS_DELFINO_PLAZA,                // 0x62
+    SEQ_SMS_GELATO_BEACH,                  // 0x63
+    SEQ_SMS_SAND_BIRD,                     // 0x64
+    SEQ_SMS_WARP_ZONE,                     // 0x65
+    SEQ_SMW_CASTLE,                        // 0x66
+    SEQ_SMW_OVERWORLD,                     // 0x67
+    SEQ_SMW_UNDERWATER,                   // 0x68
+    SEQ_TETRIS,                            // 0x69
+    SEQ_TTYD_HOOKTAIL_CASTLE,              // 0x6A
+    SEQ_TTYD_MACHO_GRUBBA,                 // 0x6B
+    SEQ_TTYD_SHADOW_QUEEN_BATTLE,          // 0x6C
+    SEQ_TTYD_TWILIGHT_TOWN,                // 0x6D
+    SEQ_UNDERTALE_CORE,                    // 0x6E
+    SEQ_UNDERTALE_DEATH_BY_GLAMOUR,        // 0x6F
+    SEQ_UNDERTALE_RUINS,                   // 0x70
+    SEQ_UNDERTALE_SNOWDIN_TOWN,            // 0x71
+    SEQ_YI_CASTLE,                         // 0x72
+    SEQ_YI_CRYSTAL_CAVES,                  // 0x73
+    SEQ_SLIDER_REMIX,                  // 0x74
+    SEQ_ZELDAMM_BOSS_THEME,                // 0x75
+    SEQ_ZELDAMM_WOODFALL_TEMPLE,           // 0x76
+    SEQ_ZELDAOOT_BOSS_THEME,               // 0x77
+    SEQ_ZELDAOOT_LON_LON_BEACH,            // 0x78
+    SEQ_WHOMPS_DUSTY_DESERT,            // 0x79
+    SEQ_SMO_JUMP_UP_SUPER_STAR,            // 0x7A
+    SEQ_UNDERTALE_HEARTACHE,            // 0x7B
+    SEQ_UNDERTALE_WATERFALL,            // 0x7C
+    SEQ_ZELDAOOT_KAKARIKO_VILLAGE,            // 0x7D
+
     SEQ_COUNT
 };
 

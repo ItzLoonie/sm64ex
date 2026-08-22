@@ -574,13 +574,276 @@ static constexpr int SM64AP_RANDOM_MUSIC_POOL[] = {
     SEQ_LEVEL_SPOOKY,
     SEQ_LEVEL_UNDERGROUND,
     SEQ_LEVEL_KOOPA_ROAD,
+    // SEQ_EVENT_MERRY_GO_ROUND,
+    SEQ_EVENT_RACE,
+    SEQ_EVENT_BOSS,
+    // SEQ_EVENT_ENDLESS_STAIRS,
+    SEQ_LEVEL_BOSS_KOOPA_FINAL,
+    SEQ_MENU_FILE_SELECT,
+	
+	SEQ_LEVEL_GRASS,
+    SEQ_LEVEL_INSIDE_CASTLE,
+    SEQ_LEVEL_WATER,
+    SEQ_LEVEL_WATER | SEQ_VARIATION,
+    SEQ_LEVEL_HOT,
+    SEQ_LEVEL_BOSS_KOOPA,
+    SEQ_LEVEL_SNOW,
+    SEQ_LEVEL_SLIDE,
+    SEQ_LEVEL_SPOOKY,
+    SEQ_LEVEL_UNDERGROUND,
+    SEQ_LEVEL_KOOPA_ROAD,
     SEQ_EVENT_MERRY_GO_ROUND,
     SEQ_EVENT_RACE,
     SEQ_EVENT_BOSS,
     SEQ_EVENT_ENDLESS_STAIRS,
     SEQ_LEVEL_BOSS_KOOPA_FINAL,
     SEQ_MENU_FILE_SELECT,
+
+    // Mario Kart 64
+    SEQ_MK64_RACEWAYS,
+    SEQ_MK64_BOWSERS_CASTLE,
+    SEQ_MK64_FRAPPE_SNOWLAND,
+    SEQ_MK64_KALIMARI_DESERT,
+    SEQ_MK64_MOO_MOO_FARM,
+    SEQ_MK64_RAINBOW_ROAD,
+
+    // Mario Kart
+    SEQ_MKDD_BOWSERS_CASTLE,
+    SEQ_MKDS_WALUIGI_PINBALL,
+    SEQ_MKDS_TICK_TOCK_CLOCK,
+    SEQ_MKSC_SNOWLAND,
+    SEQ_MKWII_KOOPA_CAPE,
+    SEQ_MKWII_MAPLE_TREEWAY,
+    SEQ_MKWII_RACE_MENU,
+    SEQ_MK8_RAINBOW_ROAD,
+
+    // Diddy Kong Racing
+    SEQ_DKR_FROSTY_VILLAGE,
+    SEQ_DKR_SPACEDUST_ALLEY,
+    SEQ_DKR_WINDMILL_PLAINS,
+
+    // Mario & Luigi
+    SEQ_MLBIS_CAVI_CAPE,
+    SEQ_MLBIS_PLACK_BEACH,
+    SEQ_MLBIS_SHOWTIME,
+    SEQ_MLDT_DREAM_BATTLE,
+    SEQ_MLDT_NEVER_LET_UP,
+    SEQ_MLPIT_HOLLI_JOLLI_VILLAGE,
+    SEQ_MLPIT_THWOMP_CAVERNS,
+    SEQ_MLPIT_TOAD_TOWN_RUINS,
+    SEQ_MLSS_BEANBEAN_CASTLE,
+    SEQ_MLSS_CHUCKHUCK_WOODS,
+    SEQ_MLSS_COME_ON,
+    SEQ_MLSS_COME_ON_AGAIN,
+    SEQ_MLSS_HOOHOO_MOUNTAIN,
+    SEQ_MLSS_POPPLE_AND_ROOKIE,
+    SEQ_MLSS_STARDUST_FIELDS,
+
+    // New Super Mario Bros.
+    SEQ_NSMB_CASTLE,
+    SEQ_NSMB_OVERWORLD,
+    SEQ_NSMBWII_CASTLE,
+    SEQ_NSMBWII_FOREST,
+    SEQ_NSMBU_OVERWORLD,
+
+    // Pokemon
+    SEQ_POKEMON_LAVENDER_TOWN,
+
+    // Super Mario 3D
+    SEQ_SM3DW_SPRAWLING_SAVANNAH,
+    SEQ_SM64DS_BOBOMB_SQUAD,
+    SEQ_SMO_BROODALS_BATTLE,
+    SEQ_SMO_CAP_KINGDOM,
+    SEQ_SMO_CASCADE_KINGDOM,
+    SEQ_SMO_JUMP_UP_SUPER_STAR,
+
+    // Super Mario Bros.
+    SEQ_SMB_AIRSHIP,
+    SEQ_SMB_CASTLE,
+    SEQ_SMB_GHOST_HOUSE,
+    SEQ_SMB_OVERWORLD,
+    SEQ_SMB_UNDERGROUND,
+    SEQ_SMB2J_TITLE_SCREEN,
+    SEQ_SMB3_GHOST_HOUSE,
+    SEQ_SMB3_OVERWORLD,
+
+    // Super Mario Galaxy
+    SEQ_SMG_BUOY_BASE_GALAXY,
+    SEQ_SMG_GOOD_EGG_GALAXY,
+    SEQ_SMG_GUSTY_GARDEN_GALAXY,
+    SEQ_SMG_PURPLE_COMET,
+    SEQ_SMG_COMET_OBSERVATORY,
+    SEQ_SMG2_YOSHI_STAR_GALAXY,
+
+    // Super Mario RPG
+    SEQ_SMRPG_BEWARE_THE_FOREST_MUSHROOMS,
+    SEQ_SMRPG_SUNKEN_SHIP,
+
+    // Super Mario Sunshine
+    SEQ_SMS_BIANCO_HILLS,
+    SEQ_SMS_DELFINO_PLAZA,
+    SEQ_SMS_GELATO_BEACH,
+    SEQ_SMS_SAND_BIRD,
+
+    // Super Mario World
+    SEQ_SMW_CASTLE,
+    SEQ_SMW_OVERWORLD,
+    SEQ_SMW_UNDERWATER,
+
+    // Tetris
+    SEQ_TETRIS,
+
+    // Paper Mario: The Thousand-Year Door
+    SEQ_TTYD_HOOKTAIL_CASTLE,
+    SEQ_TTYD_MACHO_GRUBBA,
+    SEQ_TTYD_SHADOW_QUEEN_BATTLE,
+    SEQ_TTYD_TWILIGHT_TOWN,
+
+    // Yoshi's Island
+    SEQ_YI_CASTLE,
+    SEQ_YI_CRYSTAL_CAVES,
+
+    // Zelda
+    SEQ_ZELDAMM_BOSS_THEME,
+    SEQ_ZELDAMM_WOODFALL_TEMPLE,
+    SEQ_ZELDAOOT_BOSS_THEME,
+    SEQ_ZELDAOOT_LON_LON_BEACH,
+    SEQ_ZELDAOOT_KAKARIKO_VILLAGE,
+	
+	// Undertale
+    SEQ_UNDERTALE_HEARTACHE,
+    SEQ_UNDERTALE_WATERFALL,
+    SEQ_UNDERTALE_CORE,
+    SEQ_UNDERTALE_DEATH_BY_GLAMOUR,
+    SEQ_UNDERTALE_RUINS,
+    SEQ_UNDERTALE_SNOWDIN_TOWN,
+
+    // Custom / Misc.
+    SEQ_SLIDER_REMIX,
+    SEQ_WHOMPS_DUSTY_DESERT,
+    SEQ_A_MORNING_JOG,
+    SEQ_FFVII_ONE_WINGED_ANGEL,
+    SEQ_LM_EGADDS_LAB,
 };
+
+const char *get_seq_name(enum SeqId seqId) {
+    switch (seqId) {
+        case SEQ_MENU_TITLE_SCREEN:           return "Super Mario 64: Title Screen";
+        case SEQ_LEVEL_GRASS:                 return "Super Mario 64: Bob-omb Battlefield";
+        case SEQ_LEVEL_INSIDE_CASTLE:         return "Super Mario 64: Inside the Castle Walls";
+        case SEQ_LEVEL_WATER:                 return "Super Mario 64: Dire, Dire Docks";
+        case (SeqId)0x85:                     return "Super Mario 64: Dire, Dire Docks";
+        case SEQ_LEVEL_HOT:                   return "Super Mario 64: Lethal Lava Land";
+        case SEQ_LEVEL_BOSS_KOOPA:            return "Super Mario 64: Bowser's Theme";
+        case SEQ_LEVEL_SNOW:                  return "Super Mario 64: Cool, Cool Mountain";
+        case SEQ_LEVEL_SLIDE:                 return "Super Mario 64: Slider";
+        case SEQ_LEVEL_SPOOKY:                return "Super Mario 64: Big Boo's Haunt";
+        case SEQ_EVENT_PIRANHA_PLANT:         return "Super Mario 64: Piranha Plant's Lullaby";
+        case SEQ_LEVEL_UNDERGROUND:           return "Super Mario 64: Hazy Maze Cave";
+        case SEQ_EVENT_METAL_CAP:             return "Super Mario 64: Metallic Mario";
+        case SEQ_LEVEL_KOOPA_ROAD:            return "Super Mario 64: Bowser's Road";
+        case SEQ_EVENT_MERRY_GO_ROUND:        return "Super Mario 64: Merry-Go-Round";
+        case SEQ_EVENT_BOSS:                  return "Super Mario 64: Boss";
+        case SEQ_EVENT_ENDLESS_STAIRS:        return "Super Mario 64: Looping Steps";
+        case SEQ_LEVEL_BOSS_KOOPA_FINAL:      return "Super Mario 64: Ultimate Bowser";
+        case SEQ_EVENT_CUTSCENE_CREDITS:      return "Super Mario 64: Staff Roll";
+        case SEQ_MENU_FILE_SELECT:            return "Super Mario 64: File Select";
+
+        case SEQ_MK64_RACEWAYS:            return "Mario Kart 64: Raceways";
+        case SEQ_MK64_BOWSERS_CASTLE:            return "Mario Kart 64: Bowser's Castle";
+        case SEQ_MK64_FRAPPE_SNOWLAND:            return "Mario Kart 64: Frappe Snowland";
+        case SEQ_MK64_KALIMARI_DESERT:            return "Mario Kart 64: Kalimari Desert";
+        case SEQ_MK64_MOO_MOO_FARM:            return "Mario Kart 64: Moo, Moo Farm";
+        case SEQ_MK64_RAINBOW_ROAD:            return "Mario Kart 64: Rainbow Road";
+        case SEQ_MKDD_BOWSERS_CASTLE:            return "Mario Kart Double Dash: Bowser's Castle";
+        case SEQ_MKDS_WALUIGI_PINBALL:            return "Mario Kart DS: Waluigi Pinball";
+        case SEQ_MKDS_TICK_TOCK_CLOCK:            return "Mario Kart DS: Tick Tock Clock";
+        case SEQ_MKSC_SNOWLAND:            return "Mario Kart Super Circuit: Snowland";
+        case SEQ_MKWII_KOOPA_CAPE:            return "Mario Kart Wii: Koopa Cape";
+        case SEQ_MKWII_MAPLE_TREEWAY:            return "Mario Kart Wii: Maple Treeway";
+        case SEQ_MKWII_RACE_MENU:            return "Mario Kart Wii: Race Menu";
+        case SEQ_A_MORNING_JOG:            return "A Morning Jog";
+        case SEQ_DKR_FROSTY_VILLAGE:            return "Diddy Kong Racing: Frosty Village";
+        case SEQ_DKR_SPACEDUST_ALLEY:            return "Diddy Kong Racing: Spacedust Alley";
+        case SEQ_DKR_WINDMILL_PLAINS:            return "Diddy Kong Racing: Windmill Plains";
+        case SEQ_FFVII_ONE_WINGED_ANGEL:            return "Final Fantasy VII: One Winged Angel";
+        case SEQ_LM_EGADDS_LAB:            return "Luigi's Mansion: E. Gadd's Lab";
+        case SEQ_MK8_RAINBOW_ROAD:            return "Mario Kart 8: Rainbow Road";
+        case SEQ_MLBIS_CAVI_CAPE:            return "Mario and Luigi Bowser's Inside Story: Cavi Cape";
+        case SEQ_MLBIS_PLACK_BEACH:            return "Mario and Luigi Bowser's Inside Story: Plack Beach";
+        case SEQ_MLBIS_SHOWTIME:            return "Mario and Luigi Bowser's Inside Story: Showtime!";
+        case SEQ_MLDT_DREAM_BATTLE:            return "Mario and Luigi Dream Team: Dream Battle";
+        case SEQ_MLDT_NEVER_LET_UP:            return "Mario and Luigi Dream Team: Never Let Up!";
+        case SEQ_MLPIT_HOLLI_JOLLI_VILLAGE:            return "Mario and Luigi Partners in Time: Holli Jolli Village";
+        case SEQ_MLPIT_THWOMP_CAVERNS:            return "Mario and Luigi Partners in Time: Thwomp Caverns";
+        case SEQ_MLPIT_TOAD_TOWN_RUINS:            return "Mario and Luigi Partners in Time: Toad Town Ruins";
+        case SEQ_MLSS_BEANBEAN_CASTLE:            return "Mario and Luigi Superstar Saga: Beanbean Castle";
+        case SEQ_MLSS_CHUCKHUCK_WOODS:            return "Mario and Luigi Superstar Saga: Chucklehuck Woods";
+        case SEQ_MLSS_COME_ON:            return "Mario and Luigi Superstar Saga: Come On!";
+        case SEQ_MLSS_COME_ON_AGAIN:            return "Mario and Luigi Superstar Saga: Come On Again!";
+        case SEQ_MLSS_HOOHOO_MOUNTAIN:            return "Mario and Luigi Superstar Saga: Hoohoo Mountain";
+        case SEQ_MLSS_POPPLE_AND_ROOKIE:            return "Mario and Luigi Superstar Saga: Popple and Rookie";
+        case SEQ_MLSS_STARDUST_FIELDS:            return "Mario and Luigi Superstar Saga: Stardust Fields";
+        case SEQ_NSMB_CASTLE:            return "New Super Mario Bros: Castle";
+        case SEQ_NSMB_OVERWORLD:            return "New Super Mario Bros: Overworld";
+        case SEQ_NSMBWII_CASTLE:            return "New Super Mario Bros Wii: Castle";
+        case SEQ_NSMBWII_FOREST:            return "New Super Mario Bros Wii: Forest";
+        case SEQ_NSMBU_OVERWORLD:            return "New Super Mario Bros U: Overworld";
+        case SEQ_POKEMON_LAVENDER_TOWN:            return "Pokemon: Lavender Town";
+        case SEQ_SM3DW_SPRAWLING_SAVANNAH:            return "Super Mario 3D World: Sprawling Savannah";
+        case SEQ_SM64DS_BOBOMB_SQUAD:            return "Super Mario 64 DS: Bob-omb Squad";
+        case SEQ_SMB_AIRSHIP:            return "Super Mario Bros: Airship";
+        case SEQ_SMB_CASTLE:            return "Super Mario Bros: Castle";
+        case SEQ_SMB_GHOST_HOUSE:            return "Super Mario Bros: Ghost House";
+        case SEQ_SMB_OVERWORLD:            return "Super Mario Bros: Overworld";
+        case SEQ_SMB_UNDERGROUND:            return "Super Mario Bros: Underground";
+        case SEQ_SMB2J_TITLE_SCREEN:            return "Super Mario Bros 2J: Title Screen";
+        case SEQ_SMB3_GHOST_HOUSE:            return "Super Mario Bros 3: Ghost House";
+        case SEQ_SMB3_OVERWORLD:            return "Super Mario Bros 3: Overworld";
+        case SEQ_SMG_BUOY_BASE_GALAXY:            return "Super Mario Galaxy: Buoy Base Galaxy";
+        case SEQ_SMG_GOOD_EGG_GALAXY:            return "Super Mario Galaxy: Good Egg Galaxy";
+        case SEQ_SMG_GUSTY_GARDEN_GALAXY:            return "Super Mario Galaxy: Gusty Garden Galaxy";
+        case SEQ_SMG_PURPLE_COMET:            return "Super Mario Galaxy: Purple Comet";
+        case SEQ_SMG_COMET_OBSERVATORY:            return "Super Mario Galaxy: Comet Observatory";
+        case SEQ_SMG2_YOSHI_STAR_GALAXY:            return "Super Mario Galaxy 2: Yoshi Star Galaxy";
+        case SEQ_SMO_BROODALS_BATTLE:            return "Super Mario Odyssey: Broodals Battle";
+        case SEQ_SMO_CAP_KINGDOM:            return "Super Mario Odyssey: Cap Kingdom";
+        case SEQ_SMO_CASCADE_KINGDOM:            return "Super Mario Odyssey: Cascade Kingdom";
+        case SEQ_SMRPG_BEWARE_THE_FOREST_MUSHROOMS:            return "Super Mario RPG: Beware the Forest's Mushrooms";
+        case SEQ_SMRPG_SUNKEN_SHIP:            return "Super Mario RPG: Sunken Ship";
+        case SEQ_SMS_BIANCO_HILLS:            return "Super Mario Sunshine: Bianco Hills";
+        case SEQ_SMS_DELFINO_PLAZA:            return "Super Mario Sunshine: Delfino Plaza";
+        case SEQ_SMS_GELATO_BEACH:            return "Super Mario Sunshine: Gelato Beach";
+        case SEQ_SMS_SAND_BIRD:            return "Super Mario Sunshine: Sand Bird";
+        case SEQ_SMW_CASTLE:            return "Super Mario World: Castle";
+        case SEQ_SMW_OVERWORLD:            return "Super Mario World: Overworld";
+        case SEQ_SMW_UNDERWATER:            return "Super Mario World: Underwater";
+        case SEQ_TETRIS:            return "Tetris Theme";
+        case SEQ_TTYD_HOOKTAIL_CASTLE:            return "The Thousand Year Door: Hooktail Castle";
+        case SEQ_TTYD_MACHO_GRUBBA:            return "The Thousand Year Door: Macho Grubba!!";
+        case SEQ_TTYD_SHADOW_QUEEN_BATTLE:            return "The Thousand Year Door: Shadow Queen Battle";
+        case SEQ_TTYD_TWILIGHT_TOWN:            return "The Thousand Year Door: Twilight Town";
+        case SEQ_YI_CASTLE:            return "Yoshi's Island: Castle";
+        case SEQ_YI_CRYSTAL_CAVES:            return "Yoshi's Island: Crystal Caves";
+        case SEQ_SLIDER_REMIX:            return "Super Mario 64 Slider Remix";
+        case SEQ_ZELDAMM_BOSS_THEME:            return "Majora's Mask: Boss Theme";
+        case SEQ_ZELDAMM_WOODFALL_TEMPLE:            return "Majora's Mask: Woodfall Temple";
+        case SEQ_ZELDAOOT_BOSS_THEME:            return "Ocarina of Time: Boss Theme";
+        case SEQ_ZELDAOOT_LON_LON_BEACH:            return "Ocarina of Time: Lon Lon Beach";
+        case SEQ_WHOMPS_DUSTY_DESERT:            return "Whomp's Dusty Desert";
+        case SEQ_SMO_JUMP_UP_SUPER_STAR:            return "Super Mario Odyssey: Jump Up, Super Star";
+        case SEQ_UNDERTALE_HEARTACHE:            return "Undertale: Heartache";
+        case SEQ_UNDERTALE_WATERFALL:            return "Undertale: Waterfall";
+        case SEQ_UNDERTALE_CORE:            return "Undertale: Core";
+        case SEQ_UNDERTALE_RUINS:            return "Undertale: Ruins";
+        case SEQ_UNDERTALE_DEATH_BY_GLAMOUR:            return "Undertale: Death by Glamour";
+        case SEQ_UNDERTALE_SNOWDIN_TOWN:            return "Undertale: Snowdin Town";
+        case SEQ_ZELDAOOT_KAKARIKO_VILLAGE:            return "Ocarina of Time: Kakirika Village (Child)";
+
+        default:
+            return "???";
+    }
+}
 
 static void SM64AP_IncrementClamped(int &value, int maxValue) {
     if (value < maxValue) {
